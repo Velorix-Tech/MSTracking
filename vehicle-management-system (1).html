@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.S Tracking System — منصة إدارة المركبات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Martian+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN TOKENS — DARK MODE (DEFAULT)
+═══════════════════════════════════════════════════ */
+:root {
+  --bg-base:       #090C10;
+  --bg-surface:    #0E1117;
+  --bg-elevated:   #141820;
+  --bg-card:       #181D26;
+  --bg-hover:      #1E2430;
+  --bg-active:     #232B38;
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-normal: rgba(255,255,255,0.09);
+  --border-strong: rgba(255,255,255,0.15);
+
+  --accent-gold:   #C8A84B;
+  --accent-gold-2: #E8C96A;
+  --accent-blue:   #3D8EF0;
+  --accent-teal:   #2BBFA4;
+  --accent-red:    #E85555;
+  --accent-orange: #E8924A;
+  --accent-green:  #3DBE7A;
+  --accent-purple: #9B6FF0;
+
+  --text-primary:  #F0F2F5;
+  --text-secondary:#8A9AB5;
+  --text-muted:    #4D5A6E;
+  --text-disabled: #2D3545;
+
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-glow-gold: 0 0 20px rgba(200,168,75,0.15);
+  --shadow-glow-blue: 0 0 20px rgba(61,142,240,0.15);
+}
+
+/* ═══════════════════════════════════════════════════
+   LIGHT MODE TOKENS
+═══════════════════════════════════════════════════ */
+body.light-mode {
+  --bg-base:       #F0F2F7;
+  --bg-surface:    #FFFFFF;
+  --bg-elevated:   #F5F7FA;
+  --bg-card:       #FFFFFF;
+  --bg-hover:      #EEF1F7;
+  --bg-active:     #E4E9F3;
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-normal: rgba(0,0,0,0.10);
+  --border-strong: rgba(0,0,0,0.18);
+
+  --accent-gold:   #A8832A;
+  --accent-gold-2: #C8A84B;
+  --accent-blue:   #1D6FD8;
+  --accent-teal:   #1A9E88;
+  --accent-red:    #D03A3A;
+  --accent-orange: #C87030;
+  --accent-green:  #28A060;
+  --accent-purple: #7040D0;
+
+  --text-primary:  #0F1623;
+  --text-secondary:#3A4A62;
+  --text-muted:    #7A8BA8;
+  --text-disabled: #B0BCCE;
+
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-glow-gold: 0 0 20px rgba(168,131,42,0.12);
+  --shadow-glow-blue: 0 0 20px rgba(29,111,216,0.10);
+}
+body.light-mode ::-webkit-scrollbar-track{background:#F0F2F7}
+body.light-mode ::-webkit-scrollbar-thumb{background:#C8D0DC}
+body.light-mode .login-field select option,
+body.light-mode .filter-select option,
+body.light-mode .form-field select option{background:#FFFFFF;color:#0F1623}
+body.light-mode .nav-item.active::before{border-radius:0 99px 99px 0}
+
+/* Theme toggle button */
+.theme-toggle{
+  background:var(--bg-elevated);
+  border:1px solid var(--border-normal);
+  color:var(--text-secondary);
+  padding:8px 10px;border-radius:var(--radius-md);
+  transition:all 0.2s;font-size:13px;
+  display:flex;align-items:center;gap:6px;
+  cursor:pointer;
+}
+.theme-toggle:hover{border-color:var(--border-strong);color:var(--text-primary)}
+.theme-toggle svg{width:15px;height:15px;transition:transform 0.4s ease}
+body.light-mode .theme-toggle svg{transform:rotate(180deg)}
+
+  --font-ar: 'IBM Plex Sans Arabic', sans-serif;
+  --font-mono: 'Martian Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --sidebar-w: 260px;
+  --topbar-h:  60px;
+}
+
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-ar);
+  background:var(--bg-base);
+  color:var(--text-primary);
+  min-height:100vh;
+  overflow-x:hidden;
+  line-height:1.6;
+}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg-surface)}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#loginScreen{
+  position:fixed;inset:0;
+  background:var(--bg-base);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;
+  background-image:
+    radial-gradient(ellipse 700px 500px at 80% 20%, rgba(200,168,75,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 600px 400px at 10% 80%, rgba(61,142,240,0.04) 0%, transparent 70%);
+}
+.login-wrap{
+  width:420px;
+  background:var(--bg-card);
+  border:1px solid var(--border-normal);
+  border-radius:var(--radius-xl);
+  padding:48px 44px;
+  box-shadow:var(--shadow-card);
+  animation:fadeUp 0.5s ease;
+}
+.login-logo{
+  text-align:center;
+  margin-bottom:36px;
+}
+.login-logo .logo-mark{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:22px;font-weight:700;
+  color:var(--accent-gold);
+  letter-spacing:-0.3px;
+}
+.login-logo .logo-mark svg{width:32px;height:32px}
+.login-logo p{color:var(--text-muted);font-size:13px;margin-top:6px}
+.login-field{margin-bottom:18px}
+.login-field label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:7px;font-weight:500}
+.login-field input,.login-field select{
+  width:100%;
+  background:var(--bg-elevated);
+  border:1px solid var(--border-normal);
+  color:var(--text-primary);
+  padding:11px 14px;
+  border-radius:var(--radius-md);
+  font-size:14px;
+  transition:border-color 0.2s;
+  outline:none;
+}
+.login-field input:focus,.login-field select:focus{border-color:var(--accent-gold)}
+.login-field select option{background:var(--bg-card)}
+.btn-login{
+  width:100%;
+  padding:13px;
+  background:var(--accent-gold);
+  color:#0E0A00;
+  border:none;
+  border-radius:var(--radius-md);
+  font-size:15px;font-weight:700;
+  margin-top:8px;
+  transition:all 0.2s;
+  letter-spacing:0.3px;
+}
+.btn-login:hover{background:var(--accent-gold-2);transform:translateY(-1px);box-shadow:var(--shadow-glow-gold)}
+.login-demo-hint{
+  margin-top:20px;
+  background:var(--bg-elevated);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-md);
+  padding:14px 16px;
+  font-size:12px;color:var(--text-muted);
+}
+.login-demo-hint b{color:var(--text-secondary);font-weight:600}
+
+/* ══════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════ */
+#appShell{display:none;height:100vh;overflow:hidden}
+#appShell.visible{display:flex}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar-w);
+  min-width:var(--sidebar-w);
+  background:var(--bg-surface);
+  border-left:1px solid var(--border-subtle);
+  display:flex;flex-direction:column;
+  height:100vh;
+  overflow-y:auto;
+  position:relative;
+  z-index:10;
+}
+.sidebar-logo{
+  padding:20px 20px 16px;
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;gap:10px;
+}
+.sidebar-logo .s-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--accent-gold),#8B6A1A);
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.sidebar-logo .s-icon svg{width:18px;height:18px;fill:white}
+.sidebar-logo .s-text{
+  font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.2;
+}
+.sidebar-logo .s-text span{display:block;font-size:11px;font-weight:400;color:var(--text-muted)}
+.nav-section{padding:16px 12px 8px;font-size:10px;font-weight:600;color:var(--text-disabled);letter-spacing:1.2px;text-transform:uppercase}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  border-radius:var(--radius-md);
+  margin:1px 8px;
+  font-size:13.5px;
+  color:var(--text-secondary);
+  cursor:pointer;
+  transition:all 0.15s;
+  position:relative;
+}
+.nav-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.nav-item.active{background:var(--bg-active);color:var(--accent-gold)}
+.nav-item.active::before{
+  content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);
+  width:3px;height:22px;background:var(--accent-gold);border-radius:99px 0 0 99px;
+}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:0.8}
+.nav-item.active svg{opacity:1}
+.nav-badge{
+  margin-right:auto;
+  background:var(--accent-red);color:white;
+  font-size:10px;font-weight:700;
+  padding:2px 7px;border-radius:99px;
+  line-height:1.4;
+}
+.nav-badge.gold{background:var(--accent-gold);color:#0E0A00}
+.sidebar-user{
+  margin-top:auto;
+  border-top:1px solid var(--border-subtle);
+  padding:14px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.user-avatar{
+  width:34px;height:34px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;
+  flex-shrink:0;
+  color:white;
+}
+.user-info{flex:1;min-width:0}
+.user-info .u-name{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-info .u-role{font-size:11px;color:var(--text-muted)}
+.btn-logout{
+  background:none;border:none;
+  color:var(--text-muted);padding:6px;border-radius:6px;
+  transition:all 0.15s;
+}
+.btn-logout:hover{color:var(--accent-red);background:rgba(232,85,85,0.1)}
+.btn-logout svg{width:16px;height:16px;display:block}
+
+/* MAIN AREA */
+.main-area{
+  flex:1;display:flex;flex-direction:column;
+  height:100vh;overflow:hidden;
+}
+.topbar{
+  height:var(--topbar-h);
+  background:var(--bg-surface);
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;
+  padding:0 24px;
+  gap:16px;
+  flex-shrink:0;
+}
+.topbar-title{
+  font-size:17px;font-weight:700;color:var(--text-primary);
+  flex:1;
+}
+.topbar-title span{font-size:13px;font-weight:400;color:var(--text-muted);display:block;margin-top:1px}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.topbar-btn{
+  background:var(--bg-elevated);
+  border:1px solid var(--border-normal);
+  color:var(--text-secondary);
+  padding:8px 10px;border-radius:var(--radius-md);
+  transition:all 0.15s;font-size:13px;
+  display:flex;align-items:center;gap:6px;
+}
+.topbar-btn:hover{border-color:var(--border-strong);color:var(--text-primary)}
+.topbar-btn svg{width:15px;height:15px}
+.notif-dot{
+  position:relative;
+}
+.notif-dot::after{
+  content:'';position:absolute;top:6px;right:6px;
+  width:7px;height:7px;
+  background:var(--accent-red);border-radius:50%;
+  border:2px solid var(--bg-surface);
+}
+.page-content{
+  flex:1;overflow-y:auto;
+  padding:24px;
+}
+
+/* ══════════════════════════════════════
+   COMMON COMPONENTS
+══════════════════════════════════════ */
+.page{display:none}
+.page.active{display:block;animation:fadeUp 0.3s ease}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* KPI CARDS */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+  margin-bottom:24px;
+}
+.kpi-card{
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+  transition:border-color 0.2s;
+}
+.kpi-card:hover{border-color:var(--border-normal)}
+.kpi-card::before{
+  content:'';
+  position:absolute;top:0;right:0;
+  width:80px;height:80px;
+  border-radius:50%;
+  opacity:0.06;
+  transform:translate(20px,-20px);
+}
+.kpi-card.gold::before{background:var(--accent-gold)}
+.kpi-card.blue::before{background:var(--accent-blue)}
+.kpi-card.green::before{background:var(--accent-green)}
+.kpi-card.red::before{background:var(--accent-red)}
+.kpi-card.teal::before{background:var(--accent-teal)}
+.kpi-label{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:8px;letter-spacing:0.3px}
+.kpi-value{font-size:30px;font-weight:700;color:var(--text-primary);line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px}
+.kpi-sub .up{color:var(--accent-green)}
+.kpi-sub .down{color:var(--accent-red)}
+.kpi-icon{
+  position:absolute;top:16px;left:16px;
+  width:36px;height:36px;
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.kpi-icon svg{width:18px;height:18px}
+.kpi-card.gold .kpi-icon{background:rgba(200,168,75,0.12);color:var(--accent-gold)}
+.kpi-card.blue .kpi-icon{background:rgba(61,142,240,0.12);color:var(--accent-blue)}
+.kpi-card.green .kpi-icon{background:rgba(61,190,122,0.12);color:var(--accent-green)}
+.kpi-card.red .kpi-icon{background:rgba(232,85,85,0.12);color:var(--accent-red)}
+.kpi-card.teal .kpi-icon{background:rgba(43,191,164,0.12);color:var(--accent-teal)}
+
+/* SECTION HEADER */
+.sec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.sec-head h2{font-size:16px;font-weight:700;color:var(--text-primary)}
+.sec-head p{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 16px;border-radius:var(--radius-md);
+  font-size:13px;font-weight:600;
+  border:none;transition:all 0.15s;
+  white-space:nowrap;
+}
+.btn svg{width:15px;height:15px;flex-shrink:0}
+.btn-primary{background:var(--accent-gold);color:#0E0A00}
+.btn-primary:hover{background:var(--accent-gold-2);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg-elevated);color:var(--text-secondary);border:1px solid var(--border-normal)}
+.btn-secondary:hover{border-color:var(--border-strong);color:var(--text-primary)}
+.btn-danger{background:rgba(232,85,85,0.12);color:var(--accent-red);border:1px solid rgba(232,85,85,0.2)}
+.btn-danger:hover{background:rgba(232,85,85,0.2)}
+.btn-success{background:rgba(61,190,122,0.12);color:var(--accent-green);border:1px solid rgba(61,190,122,0.2)}
+.btn-success:hover{background:rgba(61,190,122,0.2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* TABLE */
+.table-wrap{
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+.table-toolbar{
+  padding:14px 18px;
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.search-input-wrap{
+  position:relative;flex:1;min-width:200px;max-width:340px;
+}
+.search-input-wrap svg{
+  position:absolute;top:50%;right:11px;transform:translateY(-50%);
+  width:14px;height:14px;color:var(--text-muted);pointer-events:none;
+}
+.search-input-wrap input{
+  width:100%;
+  background:var(--bg-elevated);
+  border:1px solid var(--border-normal);
+  color:var(--text-primary);
+  padding:9px 34px 9px 12px;
+  border-radius:var(--radius-md);
+  font-size:13px;outline:none;
+  transition:border-color 0.2s;
+}
+.search-input-wrap input:focus{border-color:var(--accent-gold)}
+.filter-select{
+  background:var(--bg-elevated);
+  border:1px solid var(--border-normal);
+  color:var(--text-secondary);
+  padding:9px 12px;
+  border-radius:var(--radius-md);
+  font-size:13px;outline:none;
+  transition:border-color 0.2s;
+  cursor:pointer;
+}
+.filter-select:focus{border-color:var(--accent-gold);color:var(--text-primary)}
+.filter-select option{background:var(--bg-card)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg-elevated);border-bottom:1px solid var(--border-subtle)}
+thead th{
+  padding:11px 16px;
+  font-size:11px;font-weight:600;
+  color:var(--text-muted);
+  text-align:right;
+  white-space:nowrap;
+  letter-spacing:0.5px;
+}
+tbody tr{border-bottom:1px solid var(--border-subtle);transition:background 0.1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg-hover)}
+tbody td{padding:12px 16px;font-size:13px;color:var(--text-secondary)}
+.td-primary{color:var(--text-primary)!important;font-weight:600}
+.td-mono{font-family:var(--font-mono);font-size:12px;color:var(--accent-gold)!important;font-weight:500}
+.td-actions{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.tbl-btn{
+  background:var(--bg-elevated);border:1px solid var(--border-subtle);
+  color:var(--text-secondary);padding:5px 8px;border-radius:6px;
+  font-size:11px;display:flex;align-items:center;gap:4px;
+  transition:all 0.15s;cursor:pointer;
+}
+.tbl-btn:hover{border-color:var(--border-strong);color:var(--text-primary)}
+.tbl-btn svg{width:12px;height:12px}
+.empty-state{
+  text-align:center;padding:60px 20px;
+  color:var(--text-muted);
+}
+.empty-state svg{width:40px;height:40px;opacity:0.3;margin-bottom:12px}
+.empty-state p{font-size:14px}
+
+/* BADGES */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:99px;
+  font-size:11px;font-weight:600;
+  white-space:nowrap;
+}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.badge-sold{background:rgba(232,85,85,0.12);color:var(--accent-red)}
+.badge-available{background:rgba(61,190,122,0.12);color:var(--accent-green)}
+.badge-reserved{background:rgba(200,168,75,0.12);color:var(--accent-gold)}
+.badge-pending{background:rgba(232,146,74,0.12);color:var(--accent-orange)}
+.badge-cleared{background:rgba(43,191,164,0.12);color:var(--accent-teal)}
+.badge-uncleared{background:rgba(155,111,240,0.12);color:var(--accent-purple)}
+.badge-approved{background:rgba(61,190,122,0.12);color:var(--accent-green)}
+.badge-rejected{background:rgba(232,85,85,0.12);color:var(--accent-red)}
+.badge-waiting{background:rgba(61,142,240,0.12);color:var(--accent-blue)}
+.badge-role-admin{background:rgba(200,168,75,0.12);color:var(--accent-gold)}
+.badge-role-gm{background:rgba(155,111,240,0.12);color:var(--accent-purple)}
+.badge-role-acc{background:rgba(43,191,164,0.12);color:var(--accent-teal)}
+.badge-role-sales{background:rgba(61,142,240,0.12);color:var(--accent-blue)}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(4px);
+  z-index:1000;
+  display:none;
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--bg-card);
+  border:1px solid var(--border-normal);
+  border-radius:var(--radius-xl);
+  width:100%;max-width:640px;
+  max-height:90vh;
+  overflow-y:auto;
+  animation:modalIn 0.25s ease;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+}
+.modal-lg{max-width:820px}
+.modal-xl{max-width:1000px}
+@keyframes modalIn{
+  from{opacity:0;transform:scale(0.95) translateY(10px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.modal-head{
+  padding:22px 24px 18px;
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-head h3{font-size:16px;font-weight:700;color:var(--text-primary)}
+.modal-head p{font-size:12px;color:var(--text-muted);margin-top:2px}
+.modal-close{
+  background:none;border:none;color:var(--text-muted);
+  padding:6px;border-radius:6px;
+  transition:all 0.15s;
+}
+.modal-close:hover{color:var(--text-primary);background:var(--bg-hover)}
+.modal-close svg{width:18px;height:18px;display:block}
+.modal-body{padding:24px}
+.modal-foot{
+  padding:18px 24px;
+  border-top:1px solid var(--border-subtle);
+  display:flex;justify-content:flex-end;gap:10px;
+}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-full{grid-column:1/-1}
+.form-field{display:flex;flex-direction:column;gap:7px}
+.form-field label{font-size:12px;font-weight:600;color:var(--text-secondary)}
+.form-field input,.form-field select,.form-field textarea{
+  background:var(--bg-elevated);
+  border:1px solid var(--border-normal);
+  color:var(--text-primary);
+  padding:10px 13px;
+  border-radius:var(--radius-md);
+  font-size:13px;outline:none;
+  transition:border-color 0.2s;
+}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{
+  border-color:var(--accent-gold);
+}
+.form-field textarea{resize:vertical;min-height:80px}
+.form-field select option{background:var(--bg-card)}
+.form-divider{
+  grid-column:1/-1;
+  border:none;border-top:1px solid var(--border-subtle);
+  margin:4px 0;
+}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:14px;padding-bottom:20px;position:relative}
+.tl-item:last-child{padding-bottom:0}
+.tl-item:not(:last-child) .tl-line{
+  position:absolute;right:13px;top:28px;bottom:0;
+  width:1px;background:var(--border-subtle);
+}
+.tl-dot{
+  width:28px;height:28px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:2px;
+  position:relative;z-index:1;
+}
+.tl-dot svg{width:13px;height:13px}
+.tl-dot.green{background:rgba(61,190,122,0.15);color:var(--accent-green)}
+.tl-dot.red{background:rgba(232,85,85,0.15);color:var(--accent-red)}
+.tl-dot.blue{background:rgba(61,142,240,0.15);color:var(--accent-blue)}
+.tl-dot.gold{background:rgba(200,168,75,0.15);color:var(--accent-gold)}
+.tl-dot.muted{background:var(--bg-elevated);color:var(--text-muted)}
+.tl-content{flex:1}
+.tl-content h4{font-size:13px;font-weight:600;color:var(--text-primary)}
+.tl-content p{font-size:12px;color:var(--text-muted);margin-top:2px}
+.tl-content .tl-meta{font-size:11px;color:var(--text-disabled);margin-top:4px}
+
+/* APPROVAL STAGES */
+.approval-stages{display:flex;align-items:center;gap:0;margin:20px 0}
+.appr-stage{
+  flex:1;text-align:center;
+  padding:14px;
+  background:var(--bg-elevated);
+  border-top:1px solid var(--border-subtle);
+  border-bottom:1px solid var(--border-subtle);
+  border-right:1px solid var(--border-subtle);
+  position:relative;
+}
+.appr-stage:first-child{border-right:none;border-radius:0 var(--radius-md) var(--radius-md) 0}
+.appr-stage:last-child{border-radius:var(--radius-md) 0 0 var(--radius-md)}
+.appr-stage.done{background:rgba(61,190,122,0.07);border-color:rgba(61,190,122,0.2)}
+.appr-stage.active-stage{background:rgba(61,142,240,0.07);border-color:rgba(61,142,240,0.2)}
+.appr-stage.rejected-stage{background:rgba(232,85,85,0.07);border-color:rgba(232,85,85,0.2)}
+.appr-stage-num{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+  margin:0 auto 8px;
+  background:var(--bg-card);border:1px solid var(--border-normal);
+  color:var(--text-muted);
+}
+.appr-stage.done .appr-stage-num{background:rgba(61,190,122,0.2);border-color:rgba(61,190,122,0.4);color:var(--accent-green)}
+.appr-stage.active-stage .appr-stage-num{background:rgba(61,142,240,0.2);border-color:rgba(61,142,240,0.4);color:var(--accent-blue)}
+.appr-stage-label{font-size:12px;font-weight:600;color:var(--text-secondary)}
+.appr-stage.done .appr-stage-label{color:var(--accent-green)}
+.appr-stage.active-stage .appr-stage-label{color:var(--accent-blue)}
+.appr-stage-sub{font-size:11px;color:var(--text-disabled);margin-top:3px}
+
+/* NOTIFICATION PANEL */
+.notif-panel{
+  position:absolute;top:50px;left:0;
+  width:340px;
+  background:var(--bg-card);
+  border:1px solid var(--border-normal);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-card);
+  z-index:500;
+  display:none;
+}
+.notif-panel.open{display:block}
+.notif-head{padding:14px 16px 12px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between}
+.notif-head h4{font-size:14px;font-weight:700;color:var(--text-primary)}
+.notif-item{
+  padding:12px 16px;
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;gap:10px;
+  cursor:pointer;transition:background 0.1s;
+}
+.notif-item:hover{background:var(--bg-hover)}
+.notif-item:last-child{border-bottom:none}
+.notif-dot-i{
+  width:8px;height:8px;border-radius:50%;
+  flex-shrink:0;margin-top:5px;
+}
+.notif-item h5{font-size:12px;font-weight:600;color:var(--text-primary)}
+.notif-item p{font-size:11px;color:var(--text-muted);margin-top:2px}
+.notif-item .nt{font-size:10px;color:var(--text-disabled);margin-top:4px}
+
+/* INQUIRY RESULT */
+.inquiry-result{
+  background:var(--bg-card);
+  border:1px solid var(--border-normal);
+  border-radius:var(--radius-xl);
+  overflow:hidden;
+  margin-top:20px;
+  animation:fadeUp 0.3s ease;
+}
+.inq-header{
+  padding:24px;
+  background:linear-gradient(135deg,var(--bg-elevated),var(--bg-card));
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;gap:16px;
+}
+.inq-vehicle-icon{
+  width:56px;height:56px;
+  background:linear-gradient(135deg,var(--accent-gold),rgba(200,168,75,0.3));
+  border-radius:var(--radius-lg);
+  display:flex;align-items:center;justify-content:center;
+}
+.inq-vehicle-icon svg{width:28px;height:28px;fill:white}
+.inq-title h3{font-size:18px;font-weight:700;color:var(--text-primary)}
+.inq-title p{font-size:13px;color:var(--text-muted);margin-top:3px;font-family:var(--font-mono)}
+.inq-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:0;
+}
+.inq-field{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border-subtle);
+  border-left:1px solid var(--border-subtle);
+}
+.inq-field:nth-child(3n){border-left:none}
+.inq-field label{font-size:10px;font-weight:600;color:var(--text-disabled);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px;display:block}
+.inq-field .val{font-size:14px;font-weight:600;color:var(--text-primary)}
+.inq-field .val.mono{font-family:var(--font-mono);font-size:13px;color:var(--accent-gold)}
+.inq-timeline-sec{padding:20px;border-top:1px solid var(--border-subtle)}
+.inq-timeline-sec h4{font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:16px}
+
+/* SEARCH HERO */
+.search-hero{
+  text-align:center;padding:60px 20px 40px;
+}
+.search-hero h1{
+  font-size:32px;font-weight:700;
+  background:linear-gradient(135deg,var(--text-primary),var(--text-secondary));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:10px;
+}
+.search-hero p{font-size:15px;color:var(--text-muted);margin-bottom:32px}
+.search-box{
+  max-width:640px;margin:0 auto;
+  display:flex;gap:10px;align-items:center;
+  background:var(--bg-card);
+  border:1px solid var(--border-normal);
+  border-radius:var(--radius-xl);
+  padding:6px 6px 6px 20px;
+  box-shadow:var(--shadow-card);
+  transition:border-color 0.2s;
+}
+.search-box:focus-within{border-color:var(--accent-gold)}
+.search-box input{
+  flex:1;background:none;border:none;outline:none;
+  font-size:15px;color:var(--text-primary);
+  font-family:var(--font-mono);letter-spacing:1px;
+}
+.search-box input::placeholder{font-family:var(--font-ar);font-size:14px;letter-spacing:0;color:var(--text-muted)}
+.btn-search{
+  background:var(--accent-gold);color:#0E0A00;
+  padding:12px 24px;border-radius:var(--radius-lg);
+  border:none;font-size:14px;font-weight:700;
+  transition:all 0.15s;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-search:hover{background:var(--accent-gold-2)}
+.btn-search svg{width:16px;height:16px}
+
+/* AUDIT LOG */
+.audit-row{
+  padding:12px 16px;
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;gap:12px;
+}
+.audit-row:last-child{border-bottom:none}
+.audit-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.audit-icon svg{width:14px;height:14px}
+.audit-body{flex:1}
+.audit-body h5{font-size:13px;font-weight:600;color:var(--text-primary)}
+.audit-body p{font-size:11px;color:var(--text-muted);margin-top:2px}
+.audit-time{font-size:11px;color:var(--text-disabled);font-family:var(--font-mono);white-space:nowrap}
+
+/* DASHBOARD CHART PLACEHOLDER */
+.chart-wrap{
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  margin-bottom:16px;
+}
+.chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.chart-head h3{font-size:14px;font-weight:700;color:var(--text-primary)}
+.mini-bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px}
+.mini-bar{
+  flex:1;border-radius:4px 4px 0 0;
+  background:linear-gradient(to top,rgba(200,168,75,0.8),rgba(200,168,75,0.2));
+  transition:opacity 0.2s;cursor:pointer;position:relative;
+}
+.mini-bar:hover{opacity:0.8}
+.mini-bar .bar-label{
+  position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+  font-size:10px;color:var(--text-muted);white-space:nowrap;
+}
+.chart-axis{display:flex;gap:6px;margin-top:24px;padding-top:4px;border-top:1px solid var(--border-subtle)}
+.chart-axis span{flex:1;text-align:center;font-size:10px;color:var(--text-muted)}
+
+/* STAT ROW */
+.stat-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.stat-mini{
+  flex:1;min-width:120px;
+  background:var(--bg-card);border:1px solid var(--border-subtle);
+  border-radius:var(--radius-md);
+  padding:14px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.stat-mini-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-mini-icon svg{width:14px;height:14px}
+.stat-mini-val{font-size:20px;font-weight:700;color:var(--text-primary);line-height:1}
+.stat-mini-label{font-size:11px;color:var(--text-muted)}
+
+/* ROLE PERMISSION GRID */
+.perm-grid{
+  display:grid;
+  grid-template-columns:160px repeat(5,1fr);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+.perm-cell{
+  padding:11px 12px;
+  border-bottom:1px solid var(--border-subtle);
+  border-left:1px solid var(--border-subtle);
+  font-size:12px;
+}
+.perm-cell.head{
+  background:var(--bg-elevated);
+  font-weight:700;font-size:11px;color:var(--text-secondary);
+  text-align:center;
+}
+.perm-cell.label-cell{
+  background:var(--bg-elevated);
+  font-weight:600;color:var(--text-secondary);
+}
+.perm-cell:nth-child(6n+1){border-left:none}
+.perm-check{text-align:center}
+.check-y{color:var(--accent-green);font-size:14px}
+.check-n{color:var(--text-disabled);font-size:14px}
+.check-p{color:var(--accent-gold);font-size:12px;font-weight:700}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{position:fixed;right:-260px;z-index:100;transition:right 0.3s}
+  .sidebar.mobile-open{right:0}
+  .form-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:1fr}
+  .approval-stages{flex-direction:column}
+}
+
+/* ALERT BANNER */
+.alert-banner{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;
+  border-radius:var(--radius-md);
+  margin-bottom:16px;
+  font-size:13px;
+}
+.alert-banner svg{width:16px;height:16px;flex-shrink:0}
+.alert-warn{background:rgba(232,146,74,0.12);border:1px solid rgba(232,146,74,0.2);color:var(--accent-orange)}
+.alert-info{background:rgba(61,142,240,0.10);border:1px solid rgba(61,142,240,0.2);color:var(--accent-blue)}
+.alert-success{background:rgba(61,190,122,0.10);border:1px solid rgba(61,190,122,0.2);color:var(--accent-green)}
+
+/* QR placeholder */
+.qr-box{
+  width:120px;height:120px;
+  background:white;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#333;
+  font-family:var(--font-mono);
+  text-align:center;padding:8px;
+}
+
+/* PROGRESS */
+.progress-bar-wrap{background:var(--bg-elevated);border-radius:99px;height:5px;overflow:hidden;margin-top:6px}
+.progress-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent-gold),var(--accent-gold-2))}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--bg-elevated);padding:4px;border-radius:var(--radius-md);width:fit-content;margin-bottom:20px}
+.tab{
+  padding:8px 16px;border-radius:7px;
+  font-size:13px;font-weight:500;
+  color:var(--text-muted);cursor:pointer;transition:all 0.15s;
+  border:none;background:none;
+}
+.tab.active{background:var(--bg-card);color:var(--text-primary);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.tab-pane{display:none}
+.tab-pane.active{display:block;animation:fadeUp 0.2s ease}
+
+/* COLOR SWATCH */
+.color-swatch{
+  display:inline-block;width:12px;height:12px;
+  border-radius:50%;vertical-align:middle;margin-left:5px;
+  border:1px solid rgba(255,255,255,0.1);
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
+          <path d="M6 22L10 14L16 18L22 10L26 16" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="25" r="2" fill="white" opacity="0.6"/>
+          <circle cx="22" cy="25" r="2" fill="white" opacity="0.6"/>
+          <defs><linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#C8A84B"/><stop offset="1" stop-color="#6B4A0F"/></linearGradient></defs>
+        </svg>
+        M.S Tracking System
+      </div>
+      <p>منصة إدارة المركبات المؤسسية</p>
+    </div>
+    <div class="login-field">
+      <label>المستخدم</label>
+      <select id="loginUser">
+        <option value="">— اختر المستخدم —</option>
+        <option value="admin">Admin — مدير النظام</option>
+        <option value="gm">Ahmad Al-Rashidi — المدير العام</option>
+        <option value="acc1">Fatima Noor — محاسبة 1</option>
+        <option value="acc2">Khaled Saleh — محاسب 2</option>
+        <option value="sales1">Omar Zaki — مبيعات 1</option>
+        <option value="sales2">Reem Hassan — مبيعات 2</option>
+        <option value="sales3">Tarek Mansour — مبيعات 3</option>
+      </select>
+    </div>
+    <div class="login-field">
+      <label>كلمة المرور</label>
+      <input type="password" id="loginPass" placeholder="••••••••" value="1234">
+    </div>
+    <button class="btn-login" onclick="doLogin()">تسجيل الدخول</button>
+    <div class="login-demo-hint">
+      <b>Demo:</b> اختر أي مستخدم — كلمة المرور: <b>1234</b>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════ -->
+<div id="appShell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="s-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 17l2-7h14l2 7H3zm2.5 1a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm13 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>
+      </div>
+      <div class="s-text">M.S Tracking System <span>نظام إدارة المركبات</span></div>
+    </div>
+
+    <div class="nav-section">الرئيسية</div>
+    <div class="nav-item active" onclick="navigate('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      لوحة التحكم
+    </div>
+    <div class="nav-item" onclick="navigate('inquiry',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      استعلام الشصي
+    </div>
+
+    <div class="nav-section">إدارة المركبات</div>
+    <div class="nav-item" id="nav-vehicles" onclick="navigate('vehicles',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+      المركبات
+    </div>
+    <div class="nav-item" id="nav-reservations" onclick="navigate('reservations',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      الحجوزات
+      <span class="nav-badge gold" id="badge-res">3</span>
+    </div>
+
+    <div class="nav-section">سير العمل</div>
+    <div class="nav-item" id="nav-approvals" onclick="navigate('approvals',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      الموافقات
+      <span class="nav-badge" id="badge-approvals">5</span>
+    </div>
+    <div class="nav-item" id="nav-sales" onclick="navigate('sales',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      عمليات البيع
+    </div>
+
+    <div class="nav-section">الإدارة</div>
+    <div class="nav-item" id="nav-users" onclick="navigate('users',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      المستخدمون
+    </div>
+    <div class="nav-item" id="nav-reports" onclick="navigate('reports',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+      التقارير
+    </div>
+    <div class="nav-item" id="nav-audit" onclick="navigate('audit',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      سجل المراجعة
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar" style="background:var(--accent-gold)">A</div>
+      <div class="user-info">
+        <div class="u-name" id="sidebarName">Admin</div>
+        <div class="u-role" id="sidebarRole">مدير النظام</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()" title="تسجيل الخروج">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <main class="main-area">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">
+        <span id="topbarSub">لوحة التحكم</span>
+        <span id="topbarTitle" style="font-size:13px;font-weight:400;color:var(--text-muted)">مرحباً، الإدارة</span>
+      </div>
+      <div class="topbar-actions" style="position:relative">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="تبديل الوضع">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="themeIcon"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <span id="themeLabel">فاتح</span>
+        </button>
+        <button class="topbar-btn notif-dot" onclick="toggleNotif()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-head">
+            <h4>الإشعارات</h4>
+            <span style="font-size:11px;color:var(--accent-gold);cursor:pointer">تحديد الكل كمقروء</span>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot-i" style="background:var(--accent-red)"></div>
+            <div>
+              <h5>طلب موافقة معلق</h5>
+              <p>بيع MG4 — شصي #MG4-2024-0088 يحتاج موافقة المحاسبة</p>
+              <div class="nt">منذ 5 دقائق</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot-i" style="background:var(--accent-orange)"></div>
+            <div>
+              <h5>تنبيه انتهاء حجز</h5>
+              <p>حجز #RES-2024-003 ينتهي خلال 48 ساعة</p>
+              <div class="nt">منذ 2 ساعة</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot-i" style="background:var(--accent-green)"></div>
+            <div>
+              <h5>تمت الموافقة</h5>
+              <p>المدير العام وافق على بيع MG4 — شصي #MG4-2024-0071</p>
+              <div class="nt">منذ 3 ساعات</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot-i" style="background:var(--accent-blue)"></div>
+            <div>
+              <h5>مركبة جديدة أضيفت</h5>
+              <p>تمت إضافة 3 مركبات MG4 جديدة إلى المخزون</p>
+              <div class="nt">منذ 6 ساعات</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot-i" style="background:var(--accent-orange)"></div>
+            <div>
+              <h5>تحذير انخفاض المخزون</h5>
+              <p>اللون الأبيض — 2 مركبة فقط متبقية</p>
+              <div class="nt">أمس</div>
+            </div>
+          </div>
+        </div>
+        <button class="topbar-btn" onclick="exportReport()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          تصدير
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="alert-banner alert-warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          تنبيه: 2 حجوزات تنتهي خلال 48 ساعة · 5 مركبات بجمارك غير مخلصة · 3 طلبات موافقة معلقة
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card gold">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17l2-7h14l2 7H3zm2.5 1a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm13 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg></div>
+            <div class="kpi-label">إجمالي المركبات</div>
+            <div class="kpi-value">47</div>
+            <div class="kpi-sub"><span class="up">▲ 8</span> هذا الشهر</div>
+          </div>
+          <div class="kpi-card green">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <div class="kpi-label">متاحة للبيع</div>
+            <div class="kpi-value">28</div>
+            <div class="kpi-sub">59.5% من المخزون</div>
+          </div>
+          <div class="kpi-card red">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+            <div class="kpi-label">مباعة هذا الشهر</div>
+            <div class="kpi-value">12</div>
+            <div class="kpi-sub"><span class="up">▲ 20%</span> عن الشهر السابق</div>
+          </div>
+          <div class="kpi-card blue">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            <div class="kpi-label">محجوزة</div>
+            <div class="kpi-value">7</div>
+            <div class="kpi-sub">3 تنتهي قريباً</div>
+          </div>
+          <div class="kpi-card teal">
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <div class="kpi-label">إيرادات الشهر</div>
+            <div class="kpi-value" style="font-size:22px">284,500</div>
+            <div class="kpi-sub">دينار أردني</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="chart-wrap">
+            <div class="chart-head">
+              <h3>المبيعات الشهرية — 2024</h3>
+              <span style="font-size:11px;color:var(--text-muted)">MG4 جميع الفئات</span>
+            </div>
+            <div class="mini-bar-chart" id="monthChart"></div>
+            <div class="chart-axis" id="monthLabels"></div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-head">
+              <h3>توزيع الألوان</h3>
+            </div>
+            <div id="colorDist" style="display:flex;flex-direction:column;gap:10px;margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div class="sec-head"><h2>أحدث المبيعات</h2></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>الشصي</th><th>الموديل</th><th>العميل</th><th>الحالة</th>
+                </tr></thead>
+                <tbody>
+                  <tr><td class="td-mono">MG4-2024-0091</td><td>MG4 Luxury</td><td>محمد الجابر</td><td><span class="badge badge-approved">مكتمل</span></td></tr>
+                  <tr><td class="td-mono">MG4-2024-0088</td><td>MG4 Standard</td><td>ليلى منصور</td><td><span class="badge badge-pending">بانتظار المحاسبة</span></td></tr>
+                  <tr><td class="td-mono">MG4-2024-0085</td><td>MG4 Trophy</td><td>سامر العمر</td><td><span class="badge badge-waiting">بانتظار المدير</span></td></tr>
+                  <tr><td class="td-mono">MG4-2024-0079</td><td>MG4 Luxury</td><td>نورة السالم</td><td><span class="badge badge-approved">مكتمل</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="sec-head"><h2>آخر الأحداث</h2></div>
+            <div class="table-wrap" style="padding:16px">
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-line"></div>
+                  <div class="tl-dot green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg></div>
+                  <div class="tl-content">
+                    <h4>موافقة مدير عام</h4>
+                    <p>MG4-2024-0091 — البيع مكتمل</p>
+                    <div class="tl-meta">اليوم 10:32 ص · أحمد الرشيدي</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-line"></div>
+                  <div class="tl-dot gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div>
+                  <div class="tl-content">
+                    <h4>حجز جديد</h4>
+                    <p>MG4-2024-0094 — صالة عمّان الرئيسية</p>
+                    <div class="tl-meta">اليوم 09:15 ص · عمر زكي</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-line"></div>
+                  <div class="tl-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+                  <div class="tl-content">
+                    <h4>إضافة مركبات</h4>
+                    <p>3 MG4 Luxury وصلت إلى المستودع</p>
+                    <div class="tl-meta">أمس 03:40 م · Admin</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+                  <div class="tl-content">
+                    <h4>رفض طلب موافقة</h4>
+                    <p>MG4-2024-0082 — مستندات ناقصة</p>
+                    <div class="tl-meta">أمس 01:20 م · فاطمة نور</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ VEHICLE INQUIRY ══ -->
+      <div class="page" id="page-inquiry">
+        <div class="search-hero">
+          <h1>استعلام عن مركبة</h1>
+          <p>أدخل رقم الشصي (VIN) للحصول على كامل تفاصيل المركبة وحالتها</p>
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:18px;height:18px;color:var(--text-muted);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="vinInput" placeholder="مثال: MG4-2024-0088" style="text-align:right" oninput="vinLive(this.value)">
+            <button class="btn-search" onclick="doInquiry()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              بحث
+            </button>
+          </div>
+          <div id="vinSuggestions" style="max-width:640px;margin:8px auto 0;display:flex;gap:6px;flex-wrap:wrap;justify-content:center"></div>
+        </div>
+        <div id="inquiryResult" style="max-width:900px;margin:0 auto"></div>
+      </div>
+
+      <!-- ══ VEHICLES PAGE ══ -->
+      <div class="page" id="page-vehicles">
+        <div class="sec-head">
+          <div>
+            <h2>إدارة المركبات</h2>
+            <p>عرض وإدارة جميع المركبات في المخزون</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary" onclick="showImportModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              استيراد Excel
+            </button>
+            <button class="btn btn-primary" id="addVehicleBtn" onclick="openVehicleModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              إضافة مركبة
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <div class="search-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="بحث برقم الشصي أو الموديل..." oninput="filterVehicles(this.value)">
+            </div>
+            <select class="filter-select" onchange="filterVehicleStatus(this.value)">
+              <option value="">كل الحالات</option>
+              <option value="available">متاحة</option>
+              <option value="reserved">محجوزة</option>
+              <option value="sold">مباعة</option>
+            </select>
+            <select class="filter-select" onchange="filterVehicleLocation(this.value)">
+              <option value="">كل المواقع</option>
+              <option value="فري زون">فري زون</option>
+              <option value="صالة عمّان">صالة عمّان</option>
+              <option value="مستودع">مستودع</option>
+              <option value="صالة الزرقاء">صالة الزرقاء</option>
+            </select>
+            <select class="filter-select" onchange="filterCustoms(this.value)">
+              <option value="">كل الجمارك</option>
+              <option value="cleared">مخلصة</option>
+              <option value="uncleared">غير مخلصة</option>
+            </select>
+            <div style="margin-right:auto;font-size:12px;color:var(--text-muted)" id="vehicleCount">47 مركبة</div>
+          </div>
+          <table>
+            <thead><tr>
+              <th>رقم الشصي</th>
+              <th>الموديل</th>
+              <th>اللون</th>
+              <th>الفئة</th>
+              <th>السعر</th>
+              <th>الموقع</th>
+              <th>الجمارك</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr></thead>
+            <tbody id="vehicleTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ RESERVATIONS ══ -->
+      <div class="page" id="page-reservations">
+        <div class="sec-head">
+          <div><h2>إدارة الحجوزات</h2><p>متابعة وإدارة جميع حجوزات المركبات</p></div>
+          <button class="btn btn-primary" id="addResBtn" onclick="openReservationModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            حجز جديد
+          </button>
+        </div>
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <div class="search-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="بحث باسم العميل أو الشصي...">
+            </div>
+            <select class="filter-select">
+              <option>كل المواقع</option>
+              <option>صالة عمّان</option>
+              <option>صالة الزرقاء</option>
+              <option>فري زون</option>
+            </select>
+          </div>
+          <table>
+            <thead><tr>
+              <th>رقم الحجز</th><th>الشصي</th><th>العميل</th><th>موقع الحجز</th><th>تاريخ البداية</th><th>تاريخ الانتهاء</th><th>الحالة</th><th>إجراءات</th>
+            </tr></thead>
+            <tbody id="reservationTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ APPROVALS ══ -->
+      <div class="page" id="page-approvals">
+        <div class="sec-head">
+          <div><h2>سير الموافقات</h2><p>إدارة طلبات الموافقة على عمليات البيع</p></div>
+          <div class="tabs" style="margin-bottom:0">
+            <button class="tab active" onclick="switchApprovalTab('pending',this)">معلقة <span style="color:var(--accent-red)">(5)</span></button>
+            <button class="tab" onclick="switchApprovalTab('approved',this)">موافق عليها</button>
+            <button class="tab" onclick="switchApprovalTab('rejected',this)">مرفوضة</button>
+          </div>
+        </div>
+        <div id="approvalContent"></div>
+      </div>
+
+      <!-- ══ SALES ══ -->
+      <div class="page" id="page-sales">
+        <div class="sec-head">
+          <div><h2>عمليات البيع</h2><p>إنشاء وتتبع عمليات بيع المركبات</p></div>
+          <button class="btn btn-primary" id="addSaleBtn" onclick="openSaleModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            بيع جديد
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>رقم العملية</th><th>الشصي</th><th>العميل</th><th>المبلغ</th><th>موافقة المحاسبة</th><th>موافقة المدير</th><th>الحالة</th><th>إجراءات</th>
+            </tr></thead>
+            <tbody id="salesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ USERS ══ -->
+      <div class="page" id="page-users">
+        <div class="sec-head">
+          <div><h2>إدارة المستخدمين والصلاحيات</h2><p>إدارة حسابات المستخدمين وتحديد الأذونات</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:20px">
+          <div>
+            <div class="sec-head"><h2 style="font-size:14px">المستخدمون النشطون</h2></div>
+            <div class="table-wrap" id="usersTable"></div>
+          </div>
+          <div>
+            <div class="sec-head"><h2 style="font-size:14px">مصفوفة الصلاحيات</h2></div>
+            <div class="perm-grid" id="permMatrix"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ REPORTS ══ -->
+      <div class="page" id="page-reports">
+        <div class="sec-head"><div><h2>التقارير والإحصاءات</h2><p>تحليلات شاملة لأداء المبيعات والمخزون</p></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary" onclick="exportReport()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/></svg>
+              تصدير PDF
+            </button>
+            <button class="btn btn-secondary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+              تصدير Excel
+            </button>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(200,168,75,0.12);color:var(--accent-gold)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17l2-7h14l2 7H3z"/></svg></div><div><div class="stat-mini-val">47</div><div class="stat-mini-label">إجمالي المخزون</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(61,190,122,0.12);color:var(--accent-green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="stat-mini-val">284,500</div><div class="stat-mini-label">إيرادات الشهر (JOD)</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(61,142,240,0.12);color:var(--accent-blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><div class="stat-mini-val">23,708</div><div class="stat-mini-label">متوسط سعر البيع (JOD)</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(155,111,240,0.12);color:var(--accent-purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="stat-mini-val">38</div><div class="stat-mini-label">إجمالي العملاء</div></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="chart-wrap">
+            <div class="chart-head"><h3>المبيعات حسب الفئة</h3></div>
+            <div id="catChart" style="display:flex;flex-direction:column;gap:12px;margin-top:8px"></div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-head"><h3>أداء المبيعات — ربع سنوي</h3></div>
+            <div class="mini-bar-chart" id="quarterChart"></div>
+            <div class="chart-axis" id="quarterLabels"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ AUDIT LOG ══ -->
+      <div class="page" id="page-audit">
+        <div class="sec-head">
+          <div><h2>سجل المراجعة</h2><p>تتبع كامل لجميع العمليات والتغييرات في النظام</p></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="date" class="filter-select" style="color:var(--text-secondary)">
+            <select class="filter-select"><option>كل المستخدمين</option><option>Admin</option><option>فاطمة نور</option><option>عمر زكي</option></select>
+            <select class="filter-select"><option>كل الإجراءات</option><option>إضافة</option><option>تعديل</option><option>حذف</option><option>موافقة</option></select>
+          </div>
+        </div>
+        <div class="table-wrap" id="auditLog"></div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODALS
+═══════════════════════════════════════ -->
+
+<!-- Vehicle Modal -->
+<div class="modal-overlay" id="vehicleModal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div><h3 id="vehicleModalTitle">إضافة مركبة جديدة</h3><p>أدخل جميع تفاصيل المركبة</p></div>
+      <button class="modal-close" onclick="closeModal('vehicleModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>رقم الشصي (VIN) *</label>
+          <input type="text" id="f-vin" placeholder="MG4-2024-XXXX" style="font-family:var(--font-mono)">
+        </div>
+        <div class="form-field">
+          <label>العلامة التجارية *</label>
+          <select id="f-brand"><option>MG</option><option>Toyota</option><option>Hyundai</option><option>KIA</option></select>
+        </div>
+        <div class="form-field">
+          <label>الموديل *</label>
+          <select id="f-model"><option>MG4 Standard</option><option>MG4 Luxury</option><option>MG4 Trophy</option><option>MG4 Long Range</option></select>
+        </div>
+        <div class="form-field">
+          <label>سنة الصنع</label>
+          <select id="f-year"><option>2024</option><option>2025</option><option>2023</option></select>
+        </div>
+        <div class="form-field">
+          <label>اللون</label>
+          <select id="f-color">
+            <option>أبيض لؤلؤي</option><option>أسود الفضاء</option><option>رمادي تيتانيوم</option>
+            <option>أزرق محيطي</option><option>أحمر</option><option>فضي</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>الفئة</label>
+          <select id="f-trim"><option>Full Option</option><option>Standard</option></select>
+        </div>
+        <div class="form-field">
+          <label>السعر (JOD) *</label>
+          <input type="number" id="f-price" placeholder="22000">
+        </div>
+        <div class="form-field">
+          <label>الموقع الحالي *</label>
+          <select id="f-location">
+            <option>فري زون</option><option>مستودع</option><option>صالة عمّان</option><option>صالة الزرقاء</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>حالة الجمارك</label>
+          <select id="f-customs"><option value="uncleared">غير مخلصة</option><option value="cleared">مخلصة</option></select>
+        </div>
+        <div class="form-field">
+          <label>حالة المركبة</label>
+          <select id="f-status"><option value="available">متاحة</option><option value="reserved">محجوزة</option><option value="sold">مباعة</option></select>
+        </div>
+        <hr class="form-divider">
+        <div class="form-field form-full">
+          <label>ملاحظات إضافية</label>
+          <textarea id="f-notes" placeholder="أي تفاصيل إضافية..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('vehicleModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveVehicle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17,21 17,13 7,13"/><polyline points="7,3 7,8 15,8"/></svg>
+        حفظ المركبة
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Reservation Modal -->
+<div class="modal-overlay" id="reservationModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3>حجز جديد</h3><p>تخصيص مركبة لعميل</p></div>
+      <button class="modal-close" onclick="closeModal('reservationModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field form-full">
+          <label>رقم الشصي *</label>
+          <select id="rf-vin" style="font-family:var(--font-mono)"></select>
+        </div>
+        <div class="form-field">
+          <label>اسم العميل *</label>
+          <input type="text" id="rf-customer" placeholder="الاسم الكامل">
+        </div>
+        <div class="form-field">
+          <label>رقم الهاتف</label>
+          <input type="text" id="rf-phone" placeholder="07X-XXXX-XXX">
+        </div>
+        <div class="form-field">
+          <label>موقع الحجز *</label>
+          <select id="rf-location"><option>صالة عمّان الرئيسية</option><option>صالة الزرقاء</option><option>فري زون</option></select>
+        </div>
+        <div class="form-field">
+          <label>تاريخ الانتهاء *</label>
+          <input type="date" id="rf-end">
+        </div>
+        <div class="form-field form-full">
+          <label>ملاحظات</label>
+          <textarea id="rf-notes" placeholder="تفاصيل الحجز..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('reservationModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveReservation()">تأكيد الحجز</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sale Modal -->
+<div class="modal-overlay" id="saleModal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div><h3>عملية بيع جديدة</h3><p>إنشاء طلب بيع وإرساله للموافقة</p></div>
+      <button class="modal-close" onclick="closeModal('saleModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-banner alert-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        سيُرسل طلب البيع تلقائياً لموافقة المحاسبة ثم المدير العام
+      </div>
+      <div class="form-grid">
+        <div class="form-field form-full">
+          <label>المركبة *</label>
+          <select id="sf-vin" style="font-family:var(--font-mono)"></select>
+        </div>
+        <div class="form-field">
+          <label>اسم العميل *</label>
+          <input type="text" id="sf-customer">
+        </div>
+        <div class="form-field">
+          <label>رقم الهاتف</label>
+          <input type="text" id="sf-phone" placeholder="07X-XXXX-XXX">
+        </div>
+        <div class="form-field">
+          <label>طريقة الدفع</label>
+          <select id="sf-payment"><option>كاش</option><option>تحويل بنكي</option><option>شيك</option><option>تمويل</option></select>
+        </div>
+        <div class="form-field">
+          <label>مبلغ البيع (JOD) *</label>
+          <input type="number" id="sf-amount">
+        </div>
+        <div class="form-field form-full">
+          <label>ملاحظات</label>
+          <textarea id="sf-notes"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('saleModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveSale()">إرسال للموافقة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Approval Detail Modal -->
+<div class="modal-overlay" id="approvalDetailModal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div><h3 id="apprModalTitle">تفاصيل طلب الموافقة</h3><p id="apprModalSub">عملية بيع — بانتظار موافقة المحاسبة</p></div>
+      <button class="modal-close" onclick="closeModal('approvalDetailModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="apprModalBody"></div>
+    <div class="modal-foot" id="apprModalFoot"></div>
+  </div>
+</div>
+
+<!-- Vehicle Detail Modal -->
+<div class="modal-overlay" id="vehicleDetailModal">
+  <div class="modal modal-xl">
+    <div class="modal-head">
+      <div><h3 id="vdetTitle">تفاصيل المركبة</h3><p>عرض كامل المعلومات والتاريخ</p></div>
+      <button class="modal-close" onclick="closeModal('vehicleDetailModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="vdetBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATA STORE
+// ═══════════════════════════════════════════════════
+const USERS = {
+  admin:  {name:'Admin', nameAr:'مدير النظام', role:'admin', roleAr:'مدير النظام', color:'#C8A84B', initial:'A'},
+  gm:     {name:'Ahmad Al-Rashidi', nameAr:'أحمد الرشيدي', role:'gm', roleAr:'المدير العام', color:'#9B6FF0', initial:'أ'},
+  acc1:   {name:'Fatima Noor', nameAr:'فاطمة نور', role:'accounting', roleAr:'محاسبة', color:'#2BBFA4', initial:'ف'},
+  acc2:   {name:'Khaled Saleh', nameAr:'خالد صالح', role:'accounting', roleAr:'محاسبة', color:'#2BBFA4', initial:'خ'},
+  sales1: {name:'Omar Zaki', nameAr:'عمر زكي', role:'sales', roleAr:'مبيعات', color:'#3D8EF0', initial:'ع'},
+  sales2: {name:'Reem Hassan', nameAr:'ريم حسن', role:'sales', roleAr:'مبيعات', color:'#3D8EF0', initial:'ر'},
+  sales3: {name:'Tarek Mansour', nameAr:'طارق منصور', role:'sales', roleAr:'مبيعات', color:'#3D8EF0', initial:'ط'},
+};
+
+const PERMISSIONS = {
+  admin:      {addVehicle:true, editVehicle:true, deleteVehicle:true, addReservation:true, createSale:true, approveAcc:true, approveGM:true, manageUsers:true, viewReports:true},
+  gm:         {addVehicle:false, editVehicle:true, deleteVehicle:false, addReservation:false, createSale:false, approveAcc:false, approveGM:true, manageUsers:false, viewReports:true},
+  accounting: {addVehicle:false, editVehicle:false, deleteVehicle:false, addReservation:false, createSale:false, approveAcc:true, approveGM:false, manageUsers:false, viewReports:true},
+  sales:      {addVehicle:false, editVehicle:false, deleteVehicle:false, addReservation:true, createSale:true, approveAcc:false, approveGM:false, manageUsers:false, viewReports:false},
+};
+
+let currentUser = null;
+let editingVehicleId = null;
+
+let vehicles = [
+  {id:'v1',vin:'MG4-2024-0071',brand:'MG',model:'MG4 Luxury',year:2024,color:'أبيض لؤلؤي',trim:'Full Option',price:26500,location:'صالة عمّان',customs:'cleared',status:'sold',customer:'محمد الجابر',notes:'تسليم نظامي',reservedAt:'',reserveEnd:'',salId:'s1'},
+  {id:'v2',vin:'MG4-2024-0079',brand:'MG',model:'MG4 Trophy',year:2024,color:'أسود الفضاء',trim:'Full Option',price:28900,location:'صالة عمّان',customs:'cleared',status:'sold',customer:'نورة السالم',notes:'',reservedAt:'',reserveEnd:'',salId:'s2'},
+  {id:'v3',vin:'MG4-2024-0085',brand:'MG',model:'MG4 Standard',year:2024,color:'رمادي تيتانيوم',trim:'Standard',price:21500,location:'مستودع',customs:'cleared',status:'available',customer:'',notes:'',reservedAt:'',reserveEnd:'',salId:''},
+  {id:'v4',vin:'MG4-2024-0088',brand:'MG',model:'MG4 Luxury',year:2024,color:'أزرق محيطي',trim:'Full Option',price:26500,location:'صالة الزرقاء',customs:'cleared',status:'reserved',customer:'ليلى منصور',notes:'',reservedAt:'2024-11-01',reserveEnd:'2024-11-20',salId:'s3'},
+  {id:'v5',vin:'MG4-2024-0091',brand:'MG',model:'MG4 Trophy',year:2024,color:'أبيض لؤلؤي',trim:'Full Option',price:28900,location:'صالة عمّان',customs:'cleared',status:'sold',customer:'سامر العمر',notes:'',reservedAt:'',reserveEnd:'',salId:'s4'},
+  {id:'v6',vin:'MG4-2024-0094',brand:'MG',model:'MG4 Standard',year:2024,color:'أحمر',trim:'Standard',price:21500,location:'فري زون',customs:'uncleared',status:'available',customer:'',notes:'شحنة جديدة',reservedAt:'',reserveEnd:'',salId:''},
+  {id:'v7',vin:'MG4-2024-0095',brand:'MG',model:'MG4 Luxury',year:2024,color:'فضي',trim:'Full Option',price:26500,location:'فري زون',customs:'uncleared',status:'available',customer:'',notes:'',reservedAt:'',reserveEnd:'',salId:''},
+  {id:'v8',vin:'MG4-2024-0096',brand:'MG',model:'MG4 Long Range',year:2024,color:'أسود الفضاء',trim:'Full Option',price:34000,location:'فري زون',customs:'uncleared',status:'available',customer:'',notes:'استيراد مباشر',reservedAt:'',reserveEnd:'',salId:''},
+  {id:'v9',vin:'MG4-2024-0097',brand:'MG',model:'MG4 Standard',year:2024,color:'أبيض لؤلؤي',trim:'Standard',price:21500,location:'مستودع',customs:'cleared',status:'reserved',customer:'خالد مطر',notes:'',reservedAt:'2024-11-05',reserveEnd:'2024-11-12',salId:''},
+  {id:'v10',vin:'MG4-2024-0098',brand:'MG',model:'MG4 Luxury',year:2024,color:'رمادي تيتانيوم',trim:'Full Option',price:26500,location:'صالة عمّان',customs:'cleared',status:'available',customer:'',notes:'',reservedAt:'',reserveEnd:'',salId:''},
+];
+
+let reservations = [
+  {id:'r1',resNo:'RES-2024-001',vin:'MG4-2024-0088',customer:'ليلى منصور',phone:'079-1234-567',location:'صالة الزرقاء',start:'2024-11-01',end:'2024-11-20',status:'active',by:'عمر زكي'},
+  {id:'r2',resNo:'RES-2024-002',vin:'MG4-2024-0097',customer:'خالد مطر',phone:'077-9876-543',location:'مستودع',start:'2024-11-05',end:'2024-11-12',status:'expiring',by:'ريم حسن'},
+  {id:'r3',resNo:'RES-2024-003',vin:'MG4-2024-0094',customer:'ديما الخطيب',phone:'078-5551-234',location:'صالة عمّان الرئيسية',start:'2024-11-08',end:'2024-11-15',status:'expiring',by:'طارق منصور'},
+];
+
+let sales = [
+  {id:'s1',saleNo:'SAL-2024-001',vin:'MG4-2024-0071',customer:'محمد الجابر',amount:26500,payment:'كاش',accStatus:'approved',accBy:'فاطمة نور',accDate:'2024-10-15 10:22',gmStatus:'approved',gmBy:'أحمد الرشيدي',gmDate:'2024-10-15 14:35',status:'completed',by:'عمر زكي',notes:''},
+  {id:'s2',saleNo:'SAL-2024-002',vin:'MG4-2024-0079',customer:'نورة السالم',amount:28900,payment:'تحويل بنكي',accStatus:'approved',accBy:'خالد صالح',accDate:'2024-10-22 09:10',gmStatus:'approved',gmBy:'أحمد الرشيدي',gmDate:'2024-10-22 11:40',status:'completed',by:'ريم حسن',notes:''},
+  {id:'s3',saleNo:'SAL-2024-003',vin:'MG4-2024-0088',customer:'ليلى منصور',amount:26500,payment:'تمويل',accStatus:'pending',accBy:'',accDate:'',gmStatus:'pending',gmBy:'',gmDate:'',status:'pending_acc',by:'عمر زكي',notes:'بانتظار إكمال أوراق التمويل'},
+  {id:'s4',saleNo:'SAL-2024-004',vin:'MG4-2024-0091',customer:'سامر العمر',amount:28900,payment:'كاش',accStatus:'approved',accBy:'فاطمة نور',accDate:'2024-11-08 11:00',gmStatus:'pending',gmBy:'',gmDate:'',status:'pending_gm',by:'طارق منصور',notes:''},
+  {id:'s5',saleNo:'SAL-2024-005',vin:'MG4-2024-0085',customer:'نضال العياش',amount:21500,payment:'شيك',accStatus:'rejected',accBy:'خالد صالح',accDate:'2024-11-07 15:30',gmStatus:'pending',gmBy:'',gmDate:'',status:'rejected',by:'عمر زكي',notes:'الشيك مؤجل - تحقق من الرصيد',rejectReason:'الشيك مؤجل لمدة شهر'},
+];
+
+let auditLog = [
+  {id:'a1',action:'موافقة مدير عام',detail:'SAL-2024-004 — أحمد الرشيدي وافق على البيع',user:'أحمد الرشيدي',role:'gm',time:'2024-11-09 10:32',type:'approve'},
+  {id:'a2',action:'حجز مركبة',detail:'RES-2024-003 — MG4-2024-0094 لـ ديما الخطيب',user:'طارق منصور',role:'sales',time:'2024-11-09 09:15',type:'add'},
+  {id:'a3',action:'رفض موافقة محاسبة',detail:'SAL-2024-005 — شيك مؤجل',user:'خالد صالح',role:'accounting',time:'2024-11-08 15:30',type:'reject'},
+  {id:'a4',action:'موافقة محاسبة',detail:'SAL-2024-004 — فاطمة نور أكدت الدفع',user:'فاطمة نور',role:'accounting',time:'2024-11-08 11:00',type:'approve'},
+  {id:'a5',action:'إضافة مركبة',detail:'MG4-2024-0098 — MG4 Luxury رمادي تيتانيوم',user:'Admin',role:'admin',time:'2024-11-08 08:45',type:'add'},
+  {id:'a6',action:'عملية بيع جديدة',detail:'SAL-2024-005 — MG4-2024-0085 لـ نضال العياش',user:'عمر زكي',role:'sales',time:'2024-11-07 14:20',type:'add'},
+  {id:'a7',action:'تعديل مركبة',detail:'MG4-2024-0094 — تحديث موقع من مستودع إلى فري زون',user:'Admin',role:'admin',time:'2024-11-07 10:10',type:'edit'},
+];
+
+// ═══════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════
+function doLogin(){
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  if(!u){alert('الرجاء اختيار مستخدم');return}
+  if(p!=='1234'){alert('كلمة المرور غير صحيحة');return}
+  currentUser = {...USERS[u], key:u};
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appShell').classList.add('visible');
+  applyUserContext();
+  renderAllPages();
+}
+function doLogout(){
+  currentUser=null;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('appShell').classList.remove('visible');
+  document.getElementById('loginUser').value='';
+}
+function applyUserContext(){
+  document.getElementById('sidebarAvatar').textContent = currentUser.initial;
+  document.getElementById('sidebarAvatar').style.background = currentUser.color;
+  document.getElementById('sidebarName').textContent = currentUser.nameAr;
+  document.getElementById('sidebarRole').textContent = currentUser.roleAr;
+  document.getElementById('topbarSub').textContent = getPageTitle('dashboard');
+  document.getElementById('topbarTitle').textContent = `مرحباً، ${currentUser.nameAr}`;
+
+  // Hide nav items by role
+  const role = currentUser.role;
+  const perm = PERMISSIONS[role]||PERMISSIONS.sales;
+  if(!perm.manageUsers) document.getElementById('nav-users').style.display='none';
+  if(role==='sales'){
+    document.getElementById('nav-audit').style.display='none';
+  }
+}
+function can(action){
+  if(!currentUser)return false;
+  const p = PERMISSIONS[currentUser.role]||PERMISSIONS.sales;
+  return !!p[action];
+}
+
+// ═══════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════
+const pageTitles = {
+  dashboard:'لوحة التحكم',inquiry:'استعلام الشصي',vehicles:'إدارة المركبات',
+  reservations:'الحجوزات',approvals:'سير الموافقات',sales:'عمليات البيع',
+  users:'المستخدمون',reports:'التقارير',audit:'سجل المراجعة'
+};
+function getPageTitle(p){return pageTitles[p]||p}
+function navigate(page, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg = document.getElementById('page-'+page);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('topbarSub').textContent = getPageTitle(page);
+  closeAllPanels();
+  if(page==='approvals') renderApprovals('pending');
+  if(page==='audit') renderAuditLog();
+  if(page==='users') renderUsers();
+  if(page==='reports') renderReports();
+}
+function closeAllPanels(){
+  document.getElementById('notifPanel').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+function toggleNotif(){
+  document.getElementById('notifPanel').classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.topbar-actions')) closeAllPanels();
+});
+
+// ═══════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════
+function renderAllPages(){
+  renderVehicleTable(vehicles);
+  renderReservationTable();
+  renderSalesTable();
+  renderDashboardChart();
+  renderColorDist();
+}
+
+// ═══════════════════════════════════════════════════
+//  VEHICLE INQUIRY
+// ═══════════════════════════════════════════════════
+function vinLive(val){
+  const sugg = document.getElementById('vinSuggestions');
+  if(val.length < 2){sugg.innerHTML='';return}
+  const matches = vehicles.filter(v=>v.vin.toLowerCase().includes(val.toLowerCase())||
+    (v.customer&&v.customer.includes(val))).slice(0,5);
+  sugg.innerHTML = matches.map(v=>`
+    <button onclick="document.getElementById('vinInput').value='${v.vin}';doInquiry()" style="
+      background:var(--bg-elevated);border:1px solid var(--border-normal);
+      color:var(--text-secondary);padding:5px 12px;border-radius:99px;
+      font-size:12px;cursor:pointer;font-family:var(--font-mono);
+      transition:all 0.15s;
+    " onmouseover="this.style.borderColor='var(--accent-gold)'" onmouseout="this.style.borderColor='var(--border-normal)'"
+    >${v.vin}</button>`).join('');
+}
+function doInquiry(){
+  const vin = document.getElementById('vinInput').value.trim();
+  const container = document.getElementById('inquiryResult');
+  if(!vin){container.innerHTML='';return}
+  const v = vehicles.find(x=>x.vin.toLowerCase()===vin.toLowerCase());
+  if(!v){
+    container.innerHTML=`<div class="inquiry-result" style="padding:40px;text-align:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="width:48px;height:48px;margin-bottom:12px"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      <h3 style="color:var(--text-secondary);font-size:16px">لم يتم العثور على المركبة</h3>
+      <p style="color:var(--text-muted);font-size:13px;margin-top:6px">رقم الشصي: <span style="font-family:var(--font-mono);color:var(--accent-gold)">${vin}</span> غير موجود في قاعدة البيانات</p>
+    </div>`;
+    return;
+  }
+  const sale = sales.find(s=>s.vin===v.vin);
+  const res = reservations.find(r=>r.vin===v.vin);
+  container.innerHTML=`
+    <div class="inquiry-result">
+      <div class="inq-header">
+        <div class="inq-vehicle-icon">
+          <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-3M7.5 18.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zm9 0a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/></svg>
+        </div>
+        <div class="inq-title">
+          <h3>${v.brand} ${v.model} ${v.year}</h3>
+          <p>${v.vin}</p>
+        </div>
+        <div style="margin-right:auto">
+          ${statusBadge(v.status)}
+        </div>
+        <button onclick="generateQR('${v.vin}')" class="btn btn-secondary btn-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          QR Code
+        </button>
+      </div>
+      <div class="inq-grid">
+        <div class="inq-field"><label>حالة البيع</label><div class="val">${v.status==='sold'?'✓ مباع':(v.status==='reserved'?'محجوز':'متاح للبيع')}</div></div>
+        <div class="inq-field"><label>اسم العميل</label><div class="val">${v.customer||'—'}</div></div>
+        <div class="inq-field"><label>الموديل</label><div class="val">${v.model}</div></div>
+        <div class="inq-field"><label>اللون</label><div class="val"><span class="color-swatch" style="background:${colorHex(v.color)}"></span>${v.color}</div></div>
+        <div class="inq-field"><label>الفئة</label><div class="val">${v.trim}</div></div>
+        <div class="inq-field"><label>السعر</label><div class="val mono">${v.price.toLocaleString()} JOD</div></div>
+        <div class="inq-field"><label>الموقع الحالي</label><div class="val">${v.location}</div></div>
+        <div class="inq-field"><label>حالة الجمارك</label><div class="val">${v.customs==='cleared'?'<span class="badge badge-cleared">مخلصة</span>':'<span class="badge badge-uncleared">غير مخلصة</span>'}</div></div>
+        <div class="inq-field"><label>حالة الحجز</label><div class="val">${res?`محجوز — ${res.location}`:'—'}</div></div>
+        ${res?`<div class="inq-field"><label>انتهاء الحجز</label><div class="val">${res.end}</div></div>`:''}
+        <div class="inq-field"><label>ملاحظات</label><div class="val">${v.notes||'—'}</div></div>
+        ${sale&&sale.rejectReason?`<div class="inq-field"><label>سبب الرفض</label><div class="val" style="color:var(--accent-red)">${sale.rejectReason}</div></div>`:''}
+      </div>
+      <div class="inq-timeline-sec">
+        <h4>تاريخ المركبة</h4>
+        <div class="timeline">
+          ${v.status==='sold'&&sale?`
+          <div class="tl-item">
+            <div class="tl-line"></div>
+            <div class="tl-dot green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg></div>
+            <div class="tl-content"><h4>مكتمل البيع</h4><p>البيع لـ ${v.customer} — ${sale.amount.toLocaleString()} JOD (${sale.payment})</p><div class="tl-meta">موافقة المدير: ${sale.gmDate||'—'}</div></div>
+          </div>`:``}
+          ${sale&&sale.accStatus==='approved'?`
+          <div class="tl-item">
+            <div class="tl-line"></div>
+            <div class="tl-dot teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg></div>
+            <div class="tl-content"><h4>موافقة المحاسبة</h4><p>${sale.accBy} — تأكيد الدفع</p><div class="tl-meta">${sale.accDate}</div></div>
+          </div>`:``}
+          ${res?`
+          <div class="tl-item">
+            <div class="tl-line"></div>
+            <div class="tl-dot gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div>
+            <div class="tl-content"><h4>حجز</h4><p>${res.customer} — ${res.location}</p><div class="tl-meta">${res.start} → ${res.end}</div></div>
+          </div>`:``}
+          <div class="tl-item">
+            <div class="tl-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+            <div class="tl-content"><h4>إضافة للمخزون</h4><p>استيراد ${v.brand} ${v.model}</p><div class="tl-meta">${v.location} · الجمارك: ${v.customs==='cleared'?'مخلصة':'غير مخلصة'}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  addAuditEntry('استعلام شصي', `${v.vin} — ${currentUser?.nameAr||'مجهول'}`, currentUser?.nameAr||'', currentUser?.role||'', 'view');
+}
+function colorHex(c){
+  const m={'أبيض لؤلؤي':'#E8E6E0','أسود الفضاء':'#2A2A2A','رمادي تيتانيوم':'#8A8E96','أزرق محيطي':'#2E5F9E','أحمر':'#C0392B','فضي':'#B0B8C0'};
+  return m[c]||'#888';
+}
+function generateQR(vin){
+  alert(`QR Code سيُنشأ لـ ${vin}\n(في بيئة الإنتاج يستخدم مكتبة QRCode.js)`);
+}
+
+// ═══════════════════════════════════════════════════
+//  VEHICLE TABLE
+// ═══════════════════════════════════════════════════
+let filteredVehicles = [...vehicles];
+function renderVehicleTable(list){
+  filteredVehicles = list;
+  document.getElementById('vehicleCount').textContent = `${list.length} مركبة`;
+  const canEdit = can('editVehicle')||can('addVehicle');
+  const tbody = document.getElementById('vehicleTableBody');
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-3"/></svg><p>لا توجد مركبات</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(v=>`
+    <tr>
+      <td class="td-mono">${v.vin}</td>
+      <td class="td-primary">${v.model}</td>
+      <td><span class="color-swatch" style="background:${colorHex(v.color)}"></span>${v.color}</td>
+      <td>${v.trim}</td>
+      <td style="font-family:var(--font-mono);font-size:12px;color:var(--text-primary)">${v.price.toLocaleString()} JOD</td>
+      <td>${v.location}</td>
+      <td>${v.customs==='cleared'?'<span class="badge badge-cleared">مخلصة</span>':'<span class="badge badge-uncleared">غير مخلصة</span>'}</td>
+      <td>${statusBadge(v.status)}</td>
+      <td>
+        <div class="td-actions">
+          <button class="tbl-btn" onclick="viewVehicleDetail('${v.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> عرض
+          </button>
+          ${canEdit?`<button class="tbl-btn" onclick="openVehicleModal('${v.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> تعديل
+          </button>`:''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function statusBadge(s){
+  if(s==='sold') return '<span class="badge badge-sold">مباع</span>';
+  if(s==='reserved') return '<span class="badge badge-reserved">محجوز</span>';
+  return '<span class="badge badge-available">متاح</span>';
+}
+function filterVehicles(q){
+  const list = vehicles.filter(v=>
+    v.vin.toLowerCase().includes(q.toLowerCase())||
+    v.model.toLowerCase().includes(q.toLowerCase())||
+    (v.customer&&v.customer.includes(q))
+  );
+  renderVehicleTable(list);
+}
+function filterVehicleStatus(s){
+  renderVehicleTable(s?vehicles.filter(v=>v.status===s):vehicles);
+}
+function filterVehicleLocation(l){
+  renderVehicleTable(l?vehicles.filter(v=>v.location===l):vehicles);
+}
+function filterCustoms(c){
+  renderVehicleTable(c?vehicles.filter(v=>v.customs===c):vehicles);
+}
+
+// ═══════════════════════════════════════════════════
+//  VEHICLE MODAL
+// ═══════════════════════════════════════════════════
+function openVehicleModal(id=null){
+  if(!can('addVehicle')&&!can('editVehicle')){alert('ليس لديك صلاحية هذه العملية');return}
+  editingVehicleId=id;
+  document.getElementById('vehicleModalTitle').textContent = id?'تعديل بيانات المركبة':'إضافة مركبة جديدة';
+  if(id){
+    const v=vehicles.find(x=>x.id===id);
+    if(v){
+      document.getElementById('f-vin').value=v.vin;
+      document.getElementById('f-brand').value=v.brand;
+      document.getElementById('f-model').value=v.model;
+      document.getElementById('f-color').value=v.color;
+      document.getElementById('f-trim').value=v.trim;
+      document.getElementById('f-price').value=v.price;
+      document.getElementById('f-location').value=v.location;
+      document.getElementById('f-customs').value=v.customs;
+      document.getElementById('f-status').value=v.status;
+      document.getElementById('f-notes').value=v.notes;
+    }
+  } else {
+    ['f-vin','f-price','f-notes'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('f-customs').value='uncleared';
+    document.getElementById('f-status').value='available';
+  }
+  openModal('vehicleModal');
+}
+function saveVehicle(){
+  const vin=document.getElementById('f-vin').value.trim();
+  const price=parseFloat(document.getElementById('f-price').value)||0;
+  if(!vin||!price){alert('الرجاء إدخال رقم الشصي والسعر');return}
+  if(editingVehicleId){
+    const v=vehicles.find(x=>x.id===editingVehicleId);
+    Object.assign(v,{
+      vin,brand:document.getElementById('f-brand').value,
+      model:document.getElementById('f-model').value,
+      color:document.getElementById('f-color').value,
+      trim:document.getElementById('f-trim').value,
+      price,location:document.getElementById('f-location').value,
+      customs:document.getElementById('f-customs').value,
+      status:document.getElementById('f-status').value,
+      notes:document.getElementById('f-notes').value
+    });
+    addAuditEntry('تعديل مركبة',`${vin} — ${v.model}`,currentUser.nameAr,currentUser.role,'edit');
+    showToast('تم تحديث بيانات المركبة بنجاح ✓','green');
+  } else {
+    const newV={
+      id:'v'+(Date.now()),vin,
+      brand:document.getElementById('f-brand').value,
+      model:document.getElementById('f-model').value,
+      year:parseInt(document.getElementById('f-year').value),
+      color:document.getElementById('f-color').value,
+      trim:document.getElementById('f-trim').value,
+      price,location:document.getElementById('f-location').value,
+      customs:document.getElementById('f-customs').value,
+      status:document.getElementById('f-status').value,
+      notes:document.getElementById('f-notes').value,
+      customer:'',reservedAt:'',reserveEnd:'',salId:''
+    };
+    vehicles.push(newV);
+    addAuditEntry('إضافة مركبة',`${vin} — ${newV.model}`,currentUser.nameAr,currentUser.role,'add');
+    showToast('تمت إضافة المركبة بنجاح ✓','green');
+  }
+  closeModal('vehicleModal');
+  renderVehicleTable(vehicles);
+  renderColorDist();
+}
+
+// ═══════════════════════════════════════════════════
+//  VEHICLE DETAIL MODAL
+// ═══════════════════════════════════════════════════
+function viewVehicleDetail(id){
+  const v=vehicles.find(x=>x.id===id);
+  if(!v)return;
+  const sale=sales.find(s=>s.vin===v.vin);
+  const res=reservations.find(r=>r.vin===v.vin);
+  document.getElementById('vdetTitle').textContent=`${v.brand} ${v.model} — ${v.vin}`;
+  document.getElementById('vdetBody').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px">
+          <div style="font-size:11px;color:var(--text-disabled);margin-bottom:12px;letter-spacing:0.8px">تفاصيل المركبة</div>
+          ${detRow('الشصي',`<span style="font-family:var(--font-mono);color:var(--accent-gold)">${v.vin}</span>`)}
+          ${detRow('الموديل',v.model)}
+          ${detRow('السنة',v.year)}
+          ${detRow('اللون',`<span class="color-swatch" style="background:${colorHex(v.color)}"></span> ${v.color}`)}
+          ${detRow('الفئة',v.trim)}
+          ${detRow('السعر',`${v.price.toLocaleString()} JOD`)}
+          ${detRow('الموقع',v.location)}
+          ${detRow('الجمارك',v.customs==='cleared'?'<span class="badge badge-cleared">مخلصة</span>':'<span class="badge badge-uncleared">غير مخلصة</span>')}
+          ${detRow('الحالة',statusBadge(v.status))}
+          ${v.customer?detRow('العميل',v.customer):''}
+          ${v.notes?detRow('ملاحظات',v.notes):''}
+        </div>
+        ${sale?`
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-lg);padding:20px">
+          <div style="font-size:11px;color:var(--text-disabled);margin-bottom:12px;letter-spacing:0.8px">تفاصيل البيع</div>
+          ${detRow('رقم العملية',sale.saleNo)}
+          ${detRow('المبلغ',`${sale.amount.toLocaleString()} JOD`)}
+          ${detRow('طريقة الدفع',sale.payment)}
+          ${detRow('المحاسبة',approvalBadge(sale.accStatus))}
+          ${detRow('المدير العام',approvalBadge(sale.gmStatus))}
+          ${sale.rejectReason?detRow('سبب الرفض',`<span style="color:var(--accent-red)">${sale.rejectReason}</span>`):''}
+        </div>`:''}
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:12px">تاريخ المركبة</div>
+        <div class="timeline">
+          ${sale&&sale.status==='completed'?`
+          <div class="tl-item"><div class="tl-line"></div><div class="tl-dot green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg></div>
+          <div class="tl-content"><h4>بيع مكتمل</h4><p>${v.customer} — ${sale.amount.toLocaleString()} JOD</p><div class="tl-meta">${sale.gmDate}</div></div></div>`:``}
+          ${sale&&sale.accStatus==='approved'?`
+          <div class="tl-item"><div class="tl-line"></div><div class="tl-dot teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg></div>
+          <div class="tl-content"><h4>موافقة المحاسبة</h4><p>${sale.accBy}</p><div class="tl-meta">${sale.accDate}</div></div></div>`:``}
+          ${res?`
+          <div class="tl-item"><div class="tl-line"></div><div class="tl-dot gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div>
+          <div class="tl-content"><h4>حجز</h4><p>${res.customer} — ${res.location}</p><div class="tl-meta">${res.start} → ${res.end}</div></div></div>`:``}
+          <div class="tl-item"><div class="tl-dot blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+          <div class="tl-content"><h4>إضافة للمخزون</h4><p>${v.brand} ${v.model}</p><div class="tl-meta">${v.location}</div></div></div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="qr-box" style="margin:0 auto;width:100px;height:100px;font-size:9px">
+            QR<br>${v.vin.slice(-6)}
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:8px">رمز QR للمركبة</div>
+        </div>
+      </div>
+    </div>`;
+  openModal('vehicleDetailModal');
+}
+function detRow(label,val){return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border-subtle)"><span style="font-size:12px;color:var(--text-muted)">${label}</span><span style="font-size:13px;font-weight:500;color:var(--text-primary)">${val}</span></div>`}
+function approvalBadge(s){
+  if(s==='approved') return '<span class="badge badge-approved">موافق</span>';
+  if(s==='rejected') return '<span class="badge badge-rejected">مرفوض</span>';
+  return '<span class="badge badge-waiting">معلق</span>';
+}
+
+// ═══════════════════════════════════════════════════
+//  RESERVATIONS
+// ═══════════════════════════════════════════════════
+function renderReservationTable(){
+  const tbody = document.getElementById('reservationTableBody');
+  tbody.innerHTML = reservations.map(r=>`
+    <tr>
+      <td class="td-mono">${r.resNo}</td>
+      <td class="td-mono" style="color:var(--accent-gold)">${r.vin}</td>
+      <td class="td-primary">${r.customer}</td>
+      <td>${r.location}</td>
+      <td>${r.start}</td>
+      <td>${r.end}</td>
+      <td>${r.status==='expiring'?'<span class="badge badge-pending">تنتهي قريباً</span>':'<span class="badge badge-available">نشطة</span>'}</td>
+      <td><div class="td-actions">
+        <button class="tbl-btn" onclick="cancelReservation('${r.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> إلغاء
+        </button>
+      </div></td>
+    </tr>`).join('');
+}
+function openReservationModal(){
+  if(!can('addReservation')){alert('ليس لديك صلاحية إضافة حجوزات');return}
+  const avail=vehicles.filter(v=>v.status==='available');
+  const sel=document.getElementById('rf-vin');
+  sel.innerHTML=avail.map(v=>`<option value="${v.vin}">${v.vin} — ${v.model} (${v.color})</option>`).join('');
+  const d=new Date(); d.setDate(d.getDate()+14);
+  document.getElementById('rf-end').value=d.toISOString().split('T')[0];
+  openModal('reservationModal');
+}
+function saveReservation(){
+  const vin=document.getElementById('rf-vin').value;
+  const customer=document.getElementById('rf-customer').value.trim();
+  if(!customer){alert('الرجاء إدخال اسم العميل');return}
+  const v=vehicles.find(x=>x.vin===vin);
+  if(v){v.status='reserved';v.customer=customer;}
+  const today=new Date().toISOString().split('T')[0];
+  const newRes={
+    id:'r'+(Date.now()),
+    resNo:'RES-2024-00'+(reservations.length+4),
+    vin,customer,
+    phone:document.getElementById('rf-phone').value,
+    location:document.getElementById('rf-location').value,
+    start:today,
+    end:document.getElementById('rf-end').value,
+    status:'active',
+    by:currentUser.nameAr
+  };
+  reservations.push(newRes);
+  addAuditEntry('حجز مركبة',`${newRes.resNo} — ${vin} لـ ${customer}`,currentUser.nameAr,currentUser.role,'add');
+  document.getElementById('badge-res').textContent=reservations.length;
+  renderReservationTable();
+  renderVehicleTable(vehicles);
+  closeModal('reservationModal');
+  showToast(`تم تأكيد الحجز ${newRes.resNo} ✓`,'green');
+}
+function cancelReservation(id){
+  if(!confirm('هل تريد إلغاء هذا الحجز؟'))return;
+  const idx=reservations.findIndex(r=>r.id===id);
+  if(idx>-1){
+    const r=reservations[idx];
+    const v=vehicles.find(x=>x.vin===r.vin);
+    if(v&&v.status==='reserved'){v.status='available';v.customer='';}
+    reservations.splice(idx,1);
+    addAuditEntry('إلغاء حجز',`${r.resNo} — ${r.vin}`,currentUser.nameAr,currentUser.role,'delete');
+    renderReservationTable();
+    renderVehicleTable(vehicles);
+    document.getElementById('badge-res').textContent=reservations.length;
+    showToast('تم إلغاء الحجز','orange');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  SALES
+// ═══════════════════════════════════════════════════
+function renderSalesTable(){
+  const tbody=document.getElementById('salesTableBody');
+  tbody.innerHTML=sales.map(s=>`
+    <tr>
+      <td class="td-mono">${s.saleNo}</td>
+      <td class="td-mono" style="color:var(--accent-gold)">${s.vin}</td>
+      <td class="td-primary">${s.customer}</td>
+      <td style="font-family:var(--font-mono);font-size:12px">${s.amount.toLocaleString()} JOD</td>
+      <td>${approvalBadge(s.accStatus)}</td>
+      <td>${approvalBadge(s.gmStatus)}</td>
+      <td>${saleStatusBadge(s.status)}</td>
+      <td><div class="td-actions">
+        <button class="tbl-btn" onclick="openApprovalDetail('${s.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> تفاصيل
+        </button>
+      </div></td>
+    </tr>`).join('');
+}
+function saleStatusBadge(s){
+  const map={completed:'badge-approved',pending_acc:'badge-pending',pending_gm:'badge-waiting',rejected:'badge-rejected'};
+  const lbl={completed:'مكتمل',pending_acc:'بانتظار المحاسبة',pending_gm:'بانتظار المدير',rejected:'مرفوض'};
+  return `<span class="badge ${map[s]||'badge-waiting'}">${lbl[s]||s}</span>`;
+}
+function openSaleModal(){
+  if(!can('createSale')){alert('ليس لديك صلاحية إنشاء عمليات بيع');return}
+  const avail=vehicles.filter(v=>v.status==='available'||v.status==='reserved');
+  const sel=document.getElementById('sf-vin');
+  sel.innerHTML=avail.map(v=>`<option value="${v.vin}">${v.vin} — ${v.model} (${v.price.toLocaleString()} JOD)</option>`).join('');
+  sel.onchange=function(){
+    const v=vehicles.find(x=>x.vin===this.value);
+    if(v) document.getElementById('sf-amount').value=v.price;
+  };
+  if(avail.length){document.getElementById('sf-amount').value=avail[0].price;}
+  openModal('saleModal');
+}
+function saveSale(){
+  const vin=document.getElementById('sf-vin').value;
+  const customer=document.getElementById('sf-customer').value.trim();
+  const amount=parseFloat(document.getElementById('sf-amount').value)||0;
+  if(!customer||!amount){alert('الرجاء إدخال بيانات كاملة');return}
+  const newSale={
+    id:'s'+(Date.now()),
+    saleNo:'SAL-2024-00'+(sales.length+1),
+    vin,customer,amount,
+    payment:document.getElementById('sf-payment').value,
+    accStatus:'pending',accBy:'',accDate:'',
+    gmStatus:'pending',gmBy:'',gmDate:'',
+    status:'pending_acc',
+    by:currentUser.nameAr,
+    notes:document.getElementById('sf-notes').value
+  };
+  sales.push(newSale);
+  const v=vehicles.find(x=>x.vin===vin);
+  addAuditEntry('عملية بيع جديدة',`${newSale.saleNo} — ${vin} لـ ${customer}`,currentUser.nameAr,currentUser.role,'add');
+  document.getElementById('badge-approvals').textContent=sales.filter(s=>s.status==='pending_acc'||s.status==='pending_gm').length;
+  renderSalesTable();
+  closeModal('saleModal');
+  showToast(`تم إنشاء ${newSale.saleNo} وإرساله للموافقة ✓`,'green');
+}
+
+// ═══════════════════════════════════════════════════
+//  APPROVALS
+// ═══════════════════════════════════════════════════
+function renderApprovals(tab){
+  let list;
+  if(tab==='pending') list=sales.filter(s=>s.status==='pending_acc'||s.status==='pending_gm');
+  else if(tab==='approved') list=sales.filter(s=>s.status==='completed');
+  else list=sales.filter(s=>s.status==='rejected');
+
+  const content=document.getElementById('approvalContent');
+  if(!list.length){
+    content.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>لا توجد طلبات</p></div>`;
+    return;
+  }
+  content.innerHTML=list.map(s=>{
+    const v=vehicles.find(x=>x.vin===s.vin);
+    const stageAcc=s.accStatus==='approved'?'done':(s.accStatus==='rejected'?'rejected-stage':'active-stage');
+    const stageGM=s.gmStatus==='approved'?'done':(s.gmStatus==='rejected'?'rejected-stage':(s.accStatus==='approved'?'active-stage':''));
+    return`<div class="table-wrap" style="margin-bottom:16px">
+      <div style="padding:20px;border-bottom:1px solid var(--border-subtle)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text-primary)">${s.saleNo}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
+              <span style="font-family:var(--font-mono);color:var(--accent-gold)">${s.vin}</span> · 
+              ${v?v.model:''} · ${s.customer} · ${s.amount.toLocaleString()} JOD (${s.payment})
+            </div>
+            ${s.notes?`<div style="font-size:12px;color:var(--text-muted);margin-top:4px">ملاحظات: ${s.notes}</div>`:''}
+            ${s.rejectReason?`<div style="font-size:12px;color:var(--accent-red);margin-top:4px">سبب الرفض: ${s.rejectReason}</div>`:''}
+          </div>
+          <div style="margin-right:auto;display:flex;gap:8px;align-items:center">
+            ${saleStatusBadge(s.status)}
+            <button class="btn btn-secondary btn-sm" onclick="openApprovalDetail('${s.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              عرض
+            </button>
+            ${tab==='pending'?getApprovalActions(s):''}
+          </div>
+        </div>
+        <div class="approval-stages" style="margin:16px 0 0">
+          <div class="appr-stage ${stageAcc}">
+            <div class="appr-stage-num">${s.accStatus==='approved'?'✓':'1'}</div>
+            <div class="appr-stage-label">موافقة المحاسبة</div>
+            <div class="appr-stage-sub">${s.accBy?s.accBy:'—'}</div>
+            <div class="appr-stage-sub">${s.accDate?s.accDate:''}</div>
+          </div>
+          <div class="appr-stage ${stageGM}">
+            <div class="appr-stage-num">${s.gmStatus==='approved'?'✓':'2'}</div>
+            <div class="appr-stage-label">موافقة المدير العام</div>
+            <div class="appr-stage-sub">${s.gmBy?s.gmBy:'—'}</div>
+            <div class="appr-stage-sub">${s.gmDate?s.gmDate:''}</div>
+          </div>
+          <div class="appr-stage ${s.status==='completed'?'done':''}">
+            <div class="appr-stage-num">${s.status==='completed'?'✓':'3'}</div>
+            <div class="appr-stage-label">اكتمال البيع</div>
+            <div class="appr-stage-sub">${s.status==='completed'?'مكتمل':''}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function getApprovalActions(s){
+  const role=currentUser.role;
+  if(role==='accounting'||role==='admin'){
+    if(s.status==='pending_acc'){
+      return `<button class="btn btn-success btn-sm" onclick="approveAcc('${s.id}')">✓ موافقة المحاسبة</button>
+              <button class="btn btn-danger btn-sm" onclick="rejectSale('${s.id}')">✕ رفض</button>`;
+    }
+  }
+  if(role==='gm'||role==='admin'){
+    if(s.status==='pending_gm'){
+      return `<button class="btn btn-success btn-sm" onclick="approveGM('${s.id}')">✓ موافقة المدير</button>
+              <button class="btn btn-danger btn-sm" onclick="rejectSale('${s.id}')">✕ رفض</button>`;
+    }
+  }
+  return '';
+}
+function approveAcc(id){
+  const s=sales.find(x=>x.id===id);
+  if(!s)return;
+  const now=new Date().toLocaleString('ar-JO');
+  s.accStatus='approved';s.accBy=currentUser.nameAr;s.accDate=now;s.status='pending_gm';
+  addAuditEntry('موافقة محاسبة',`${s.saleNo} — تأكيد الدفع`,currentUser.nameAr,currentUser.role,'approve');
+  renderApprovals('pending');renderSalesTable();
+  updateApprovalBadge();
+  showToast(`تمت موافقة المحاسبة على ${s.saleNo} ✓`,'green');
+}
+function approveGM(id){
+  const s=sales.find(x=>x.id===id);
+  if(!s)return;
+  const now=new Date().toLocaleString('ar-JO');
+  s.gmStatus='approved';s.gmBy=currentUser.nameAr;s.gmDate=now;s.status='completed';
+  const v=vehicles.find(x=>x.vin===s.vin);
+  if(v){v.status='sold';v.customer=s.customer;}
+  addAuditEntry('موافقة مدير عام',`${s.saleNo} — ${s.vin} لـ ${s.customer}`,currentUser.nameAr,currentUser.role,'approve');
+  renderApprovals('pending');renderSalesTable();renderVehicleTable(vehicles);
+  updateApprovalBadge();
+  showToast(`تمت الموافقة النهائية على ${s.saleNo} ✓`,'green');
+}
+function rejectSale(id){
+  const reason=prompt('سبب الرفض:');
+  if(reason===null)return;
+  const s=sales.find(x=>x.id===id);
+  if(!s)return;
+  const now=new Date().toLocaleString('ar-JO');
+  if(s.status==='pending_acc'){s.accStatus='rejected';s.accBy=currentUser.nameAr;s.accDate=now;}
+  else{s.gmStatus='rejected';s.gmBy=currentUser.nameAr;s.gmDate=now;}
+  s.status='rejected';s.rejectReason=reason||'لم يُذكر سبب';
+  addAuditEntry('رفض طلب',`${s.saleNo} — ${reason}`,currentUser.nameAr,currentUser.role,'reject');
+  renderApprovals('pending');renderSalesTable();
+  updateApprovalBadge();
+  showToast(`تم رفض ${s.saleNo}`,'red');
+}
+function switchApprovalTab(tab,btn){
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderApprovals(tab);
+}
+function updateApprovalBadge(){
+  document.getElementById('badge-approvals').textContent=sales.filter(s=>s.status==='pending_acc'||s.status==='pending_gm').length;
+}
+function openApprovalDetail(id){
+  const s=sales.find(x=>x.id===id);
+  if(!s)return;
+  const v=vehicles.find(x=>x.vin===s.vin);
+  document.getElementById('apprModalTitle').textContent=`تفاصيل — ${s.saleNo}`;
+  document.getElementById('apprModalSub').textContent=`عملية بيع ${s.customer} · ${s.amount.toLocaleString()} JOD`;
+  document.getElementById('apprModalBody').innerHTML=`
+    <div class="form-grid">
+      ${detRow('رقم العملية',`<span style="font-family:var(--font-mono)">${s.saleNo}</span>`)}
+      ${detRow('الشصي',`<span style="font-family:var(--font-mono);color:var(--accent-gold)">${s.vin}</span>`)}
+      ${detRow('الموديل',v?v.model:'—')}
+      ${detRow('العميل',s.customer)}
+      ${detRow('المبلغ',`${s.amount.toLocaleString()} JOD`)}
+      ${detRow('طريقة الدفع',s.payment)}
+      ${detRow('بواسطة',s.by)}
+      ${s.notes?detRow('ملاحظات',s.notes):''}
+      ${s.rejectReason?detRow('سبب الرفض',`<span style="color:var(--accent-red)">${s.rejectReason}</span>`):''}
+    </div>
+    <div style="margin-top:20px">
+      <div class="approval-stages">
+        <div class="appr-stage ${s.accStatus==='approved'?'done':(s.accStatus==='rejected'?'rejected-stage':'active-stage')}">
+          <div class="appr-stage-num">${s.accStatus==='approved'?'✓':'1'}</div>
+          <div class="appr-stage-label">موافقة المحاسبة</div>
+          <div class="appr-stage-sub">${s.accBy||'—'}</div>
+          <div class="appr-stage-sub">${s.accDate||''}</div>
+        </div>
+        <div class="appr-stage ${s.gmStatus==='approved'?'done':(s.gmStatus==='rejected'?'rejected-stage':(s.accStatus==='approved'?'active-stage':''))}">
+          <div class="appr-stage-num">${s.gmStatus==='approved'?'✓':'2'}</div>
+          <div class="appr-stage-label">موافقة المدير العام</div>
+          <div class="appr-stage-sub">${s.gmBy||'—'}</div>
+          <div class="appr-stage-sub">${s.gmDate||''}</div>
+        </div>
+        <div class="appr-stage ${s.status==='completed'?'done':''}">
+          <div class="appr-stage-num">${s.status==='completed'?'✓':'3'}</div>
+          <div class="appr-stage-label">اكتمال البيع</div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('apprModalFoot').innerHTML=`
+    <button class="btn btn-secondary" onclick="closeModal('approvalDetailModal')">إغلاق</button>
+    ${getApprovalActions(s)}`;
+  openModal('approvalDetailModal');
+}
+
+// ═══════════════════════════════════════════════════
+//  USERS PAGE
+// ═══════════════════════════════════════════════════
+function renderUsers(){
+  const userList=Object.entries(USERS);
+  document.getElementById('usersTable').innerHTML=`
+    <table>
+      <thead><tr><th>المستخدم</th><th>الدور</th><th>الحالة</th></tr></thead>
+      <tbody>
+        ${userList.map(([k,u])=>`<tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;border-radius:50%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">${u.initial}</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--text-primary)">${u.nameAr}</div>
+                <div style="font-size:11px;color:var(--text-muted)">${u.name}</div>
+              </div>
+            </div>
+          </td>
+          <td>${roleBadge(u.role)}</td>
+          <td><span class="badge badge-available">نشط</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+
+  const permLabels={
+    addVehicle:'إضافة مركبة',editVehicle:'تعديل مركبة',deleteVehicle:'حذف مركبة',
+    addReservation:'إضافة حجز',createSale:'إنشاء بيع',
+    approveAcc:'موافقة محاسبة',approveGM:'موافقة مدير',
+    manageUsers:'إدارة مستخدمين',viewReports:'عرض تقارير'
+  };
+  const roles=['admin','gm','accounting','sales'];
+  const roleNames=['Admin','المدير','محاسب','مبيعات'];
+  let grid=`
+    <div class="perm-cell head label-cell">الصلاحية</div>
+    ${roleNames.map(r=>`<div class="perm-cell head">${r}</div>`).join('')}`;
+  Object.entries(permLabels).forEach(([key,label])=>{
+    grid+=`<div class="perm-cell label-cell">${label}</div>`;
+    roles.forEach(role=>{
+      const has=PERMISSIONS[role]&&PERMISSIONS[role][key];
+      grid+=`<div class="perm-cell perm-check"><span class="${has?'check-y':'check-n'}">${has?'✓':'—'}</span></div>`;
+    });
+  });
+  document.getElementById('permMatrix').innerHTML=grid;
+}
+function roleBadge(r){
+  const map={admin:'badge-role-admin',gm:'badge-role-gm',accounting:'badge-role-acc',sales:'badge-role-sales'};
+  const lbl={admin:'مدير النظام',gm:'مدير عام',accounting:'محاسبة',sales:'مبيعات'};
+  return`<span class="badge ${map[r]}">${lbl[r]||r}</span>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  REPORTS / CHARTS
+// ═══════════════════════════════════════════════════
+function renderDashboardChart(){
+  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر'];
+  const data=[5,8,6,11,9,13,7,14,10,12,8];
+  const max=Math.max(...data);
+  const chart=document.getElementById('monthChart');
+  const labels=document.getElementById('monthLabels');
+  if(!chart)return;
+  chart.innerHTML=data.map((v,i)=>`<div class="mini-bar" style="height:${(v/max*100)}%" title="${months[i]}: ${v} مركبة"></div>`).join('');
+  labels.innerHTML=data.map((_,i)=>`<span>${months[i].slice(0,3)}</span>`).join('');
+}
+function renderColorDist(){
+  const colorCount={};
+  vehicles.forEach(v=>{colorCount[v.color]=(colorCount[v.color]||0)+1});
+  const total=vehicles.length;
+  const el=document.getElementById('colorDist');
+  if(!el)return;
+  el.innerHTML=Object.entries(colorCount).map(([color,cnt])=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px">
+          <span class="color-swatch" style="background:${colorHex(color)};width:10px;height:10px"></span>${color}
+        </span>
+        <span style="font-size:12px;font-weight:600;color:var(--text-primary)">${cnt}</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${(cnt/total*100).toFixed(0)}%"></div></div>
+    </div>`).join('');
+}
+function renderReports(){
+  const cats={};
+  vehicles.forEach(v=>{cats[v.model]=(cats[v.model]||0)+1});
+  const el=document.getElementById('catChart');
+  const total=vehicles.length;
+  if(el) el.innerHTML=Object.entries(cats).map(([m,c])=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;color:var(--text-secondary)">${m}</span>
+        <span style="font-size:12px;font-weight:600;color:var(--text-primary)">${c} (${Math.round(c/total*100)}%)</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${c/total*100}%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-teal))"></div></div>
+    </div>`).join('');
+
+  const qdata=[22,31,28,19];
+  const qlabels=['Q1','Q2','Q3','Q4'];
+  const qmax=Math.max(...qdata);
+  const qc=document.getElementById('quarterChart');
+  const ql=document.getElementById('quarterLabels');
+  if(qc) qc.innerHTML=qdata.map((v,i)=>`<div class="mini-bar" style="height:${v/qmax*100}%;background:linear-gradient(to top,rgba(43,191,164,0.8),rgba(43,191,164,0.2))" title="${qlabels[i]}: ${v}"></div>`).join('');
+  if(ql) ql.innerHTML=qlabels.map(l=>`<span>${l}</span>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  AUDIT LOG
+// ═══════════════════════════════════════════════════
+function addAuditEntry(action,detail,user,role,type){
+  auditLog.unshift({
+    id:'a'+(Date.now()),action,detail,user,role,
+    time:new Date().toLocaleString('ar-JO'),type
+  });
+}
+function renderAuditLog(){
+  const colors={approve:'var(--accent-green)',add:'var(--accent-blue)',edit:'var(--accent-gold)',delete:'var(--accent-red)',reject:'var(--accent-red)',view:'var(--text-muted)'};
+  const icons={
+    approve:'<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+    add:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+    edit:'<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+    delete:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    reject:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    view:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+  };
+  document.getElementById('auditLog').innerHTML=auditLog.map(a=>`
+    <div class="audit-row">
+      <div class="audit-icon" style="background:${colors[a.type]||'var(--text-muted)'}22;color:${colors[a.type]||'var(--text-muted)'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icons[a.type]||icons.view}</svg>
+      </div>
+      <div class="audit-body">
+        <h5>${a.action}</h5>
+        <p>${a.detail}</p>
+        <p style="margin-top:2px">${roleBadge(a.role)} <span style="font-size:11px;color:var(--text-muted);margin-right:6px">${a.user}</span></p>
+      </div>
+      <div class="audit-time">${a.time}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  MODAL HELPERS
+// ═══════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});
+});
+
+// ═══════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════
+function showToast(msg,color='green'){
+  const t=document.createElement('div');
+  const colors={green:'var(--accent-green)',red:'var(--accent-red)',orange:'var(--accent-orange)'};
+  t.style.cssText=`
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--bg-card);border:1px solid ${colors[color]||colors.green};
+    color:${colors[color]||colors.green};padding:12px 24px;border-radius:var(--radius-lg);
+    font-size:13px;font-weight:600;z-index:9998;box-shadow:var(--shadow-card);
+    animation:fadeUp 0.3s ease;font-family:var(--font-ar);
+    white-space:nowrap;
+  `;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// ═══════════════════════════════════════════════════
+//  THEME TOGGLE
+// ═══════════════════════════════════════════════════
+function toggleTheme(){
+  const isLight = document.body.classList.toggle('light-mode');
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  if(isLight){
+    icon.innerHTML='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    label.textContent='داكن';
+  } else {
+    icon.innerHTML='<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+    label.textContent='فاتح';
+  }
+}
+
+function exportReport(){showToast('جارٍ تصدير التقرير… (Demo)','gold')}
+function showImportModal(){showToast('استيراد Excel متاح في نسخة الإنتاج (Demo)','orange')}
+
+// Enter key on VIN search
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('vinInput')===document.activeElement){doInquiry()}
+});
+
+// Permission-hide add buttons based on role (called after login)
+function applyPermUI(){
+  if(!can('addVehicle')) {const b=document.getElementById('addVehicleBtn');if(b)b.style.display='none';}
+  if(!can('addReservation')){const b=document.getElementById('addResBtn');if(b)b.style.display='none';}
+  if(!can('createSale')){const b=document.getElementById('addSaleBtn');if(b)b.style.display='none';}
+}
+const origRenderAll=renderAllPages;
+function renderAllPages(){
+  origRenderAll();
+  applyPermUI();
+}
+</script>
+</body>
+</html>
